@@ -30,11 +30,11 @@ const routes: AppRouteConfig[] = [
   {
     component: Dashboard,
     exact: true,
-    label: 'Dashboard',
+    label: 'Home',
     path: '/',
-    title: 'PatternFly Seed | Main Dashboard',
+    title: 'PatternFly Seed | Home',
   },
-  {
+  /* {
     component: Support,
     exact: true,
     label: 'Support',
@@ -59,7 +59,7 @@ const routes: AppRouteConfig[] = [
         title: 'PatternFly Seed | Profile Settings',
       },
     ],
-  },
+  }, */
 ];
 
 // a custom hook for sending focus to the primary content container
