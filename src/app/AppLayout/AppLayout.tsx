@@ -9,6 +9,7 @@ import {
   MastheadToggle,
   Nav,
   NavExpandable,
+  NavGroup,
   NavItem,
   NavList,
   Page,
@@ -24,49 +25,6 @@ interface IAppLayout {
 
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
-  const [messages, setMessages] = React.useState<string[]>([]);
-
-  async function fetchData() {
-    const response = await fetch(
-      'https://quarkus-llm-router-rhsaia-dev.apps.rhsaia.vg6c.p1.openshiftapps.com/assistant/chat/streaming',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: 'What is this product?',
-          assistantName: 'default_rhoai',
-        }),
-      },
-    );
-
-    if (!response.ok || !response.body) {
-      throw new Error('Network response was not ok');
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder('utf-8');
-    let done;
-
-    while (!done) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
-
-      const chunk = decoder.decode(value, { stream: true });
-      console.log(chunk);
-      setMessages((prevData) => [...prevData, chunk]);
-    }
-  }
-
-  React.useEffect(() => {
-    fetchData().catch((error) => {
-      // Handle any errors that occurred during the fetch
-      console.error('There was a problem with the fetch operation:', error);
-    });
-  }, []);
 
   const masthead = (
     <Masthead>
@@ -153,9 +111,11 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const Navigation = (
     <Nav id="nav-primary-simple">
       <NavList id="nav-list-simple">
-        {routes.map(
-          (route, idx) => route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx)),
-        )}
+        <NavGroup title="AI assistants">
+          {routes.map(
+            (route, idx) => route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx)),
+          )}
+        </NavGroup>
       </NavList>
     </Nav>
   );
@@ -187,31 +147,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       masthead={masthead}
       sidebar={sidebarOpen && Sidebar}
       skipToContent={PageSkipToContent}
+      isContentFilled
     >
-      <p>
-        {messages.map((chunk, i) => (
-          <span key={i}>{chunk}</span>
-        ))}
-      </p>
-      {/* <Chatbot isVisible={true} displayMode={displayMode}>
-        <ChatbotHeader>
-          <ChatbotHeaderMain>
-            <ChatbotHeaderTitle displayMode={displayMode}></ChatbotHeaderTitle>
-          </ChatbotHeaderMain>
-        </ChatbotHeader>
-        <ChatbotContent>
-          <MessageBox>
-            <ChatbotWelcomePrompt title="Hello, Chatbot User" description="How may I help you today?" />
-            {messages.map((message) => (
-              <Message key={message.name} {...message} />
-            ))}
-            <div ref={scrollToBottomRef}></div>
-          </MessageBox>
-        </ChatbotContent>
-        <ChatbotFooter>
-          <MessageBar onSendMessage={handleSend} hasMicrophoneButton isSendButtonDisabled={isSendButtonDisabled} />
-        </ChatbotFooter>
-      </Chatbot> */}
+      {children}
     </Page>
   );
 };
