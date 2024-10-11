@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { BaseChatbot } from '@app/BaseChatbot/BaseChatbot';
 
-const RHOAI: React.FunctionComponent = () => (
+const Ansible: React.FunctionComponent = () => (
   <BaseChatbot
-    title="Red Hat OpenShift AI"
+    title="Ansible"
     url="https://quarkus-llm-router-rhsaia-dev.apps.rhsaia.vg6c.p1.openshiftapps.com/assistant/chat/streaming"
-    assistantName="default_rhoai"
+    assistantName="default_ansible"
   />
 );
 
-export { RHOAI };
+export { Ansible };

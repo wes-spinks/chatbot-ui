@@ -3,6 +3,10 @@ import { Route, RouteComponentProps, Switch, useLocation } from 'react-router-do
 import { RHOAI } from '@app/RHOAI/RHOAI';
 import { NotFound } from '@app/NotFound/NotFound';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
+import { OCP } from './OCP/OCP';
+import { RHO } from './RHO/RHO';
+import { Ansible } from './Ansible/Ansible';
+import { RHEL } from './RHEL/RHEL';
 
 let routeFocusTimer: number;
 export interface IAppRoute {
@@ -25,11 +29,40 @@ export type AppRouteConfig = IAppRoute | IAppRouteGroup;
 
 const routes: AppRouteConfig[] = [
   {
+    component: Ansible,
+    exact: true,
+    label: 'Ansible',
+    path: '/',
+    title: 'PatternFly Seed | Ansible',
+  },
+  {
+    component: OCP,
+    exact: true,
+    label: 'OpenShift Container Platform',
+    path: '/ocp',
+    title: 'PatternFly Seed | OpenShift Container Platform',
+  },
+  {
+    component: RHEL,
+    exact: true,
+    label: 'Red Hat Enterprise Linux',
+    path: '/rhel',
+    title: 'PatternFly Seed | Red Hat Enterprise Linux',
+  },
+  {
     component: RHOAI,
     exact: true,
     label: 'Red Hat OpenShift AI',
-    path: '/',
+    path: '/rhoai',
     title: 'PatternFly Seed | Red Hat OpenShift AI',
+  },
+
+  {
+    component: RHO,
+    exact: true,
+    label: 'RHO 2025 FAQ',
+    path: '/rho',
+    title: 'PatternFly Seed | RHO 2025 FAQ',
   },
 ];
 
