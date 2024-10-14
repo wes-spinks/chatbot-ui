@@ -9,7 +9,7 @@ on:
       - v*
 
 env:
-  IMAGE_REGISTRY: quay.io/redhat-saia/quarkus-routing-service
+  IMAGE_REGISTRY: quay.io/redhat-saia/chatbot-ui-patternfly
   IMAGE_BASE_REGISTRY: quay.io
 
 jobs:
@@ -56,10 +56,10 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
       - name: Install dependencies
         run: |
-          if [ ! -f package-lock.json ]; then
-            npm install
-          fi
-          npm ci
+          npm install
+      - name: Build Application
+        run: |
+          npm run build
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -89,6 +89,18 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
           registry: ${{ env.IMAGE_BASE_REGISTRY }}
+
+      - name: Download production artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      
+      - name: Download node modules
+        uses: actions/download-artifact@v4
+        with:
+          name: node_modules
+          path: node_modules
 
       - name: Build and push
         uses: docker/build-push-action@v2
