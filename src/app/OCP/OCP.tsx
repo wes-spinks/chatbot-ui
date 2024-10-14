@@ -4,7 +4,8 @@ import { BaseChatbot } from '@app/BaseChatbot/BaseChatbot';
 const OCP: React.FunctionComponent = () => (
   <BaseChatbot
     title="Red Hat OpenShift Container Platform"
-    url="https://quarkus-llm-router-rhsaia-dev.apps.rhsaia.vg6c.p1.openshiftapps.com/assistant/chat/streaming"
+    // TODO: Throw exception if REACT_APP_ROUTER_URL is not set
+    url={process.env.REACT_APP_ROUTER_URL ?? ''}
     assistantName="default_ocp"
   />
 );

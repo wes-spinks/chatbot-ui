@@ -4,7 +4,7 @@ import { BaseChatbot } from '@app/BaseChatbot/BaseChatbot';
 const RHOAI: React.FunctionComponent = () => (
   <BaseChatbot
     title="Red Hat OpenShift AI"
-    url="https://quarkus-llm-router-rhsaia-dev.apps.rhsaia.vg6c.p1.openshiftapps.com/assistant/chat/streaming"
+    url={process.env.REACT_APP_ROUTER_URL ?? ''}
     assistantName="default_rhoai"
   />
 );

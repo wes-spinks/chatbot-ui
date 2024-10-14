@@ -100,3 +100,13 @@ ENV_2=http://2.myendpoint.com
 ```
 
 With that in place, you can use the values in your code like `console.log(process.env.ENV_1);`
+
+# TODOs
+
+Lets make the port that we run on configurable.
+
+The assistants will need to be dynamic. Eventually we are going to want the ability to add/remove them (which will be taken care of by calls to the backend)
+
+Add a button to stop a streaming response
+
+(Infra) Set the Registry Secrets at the org level

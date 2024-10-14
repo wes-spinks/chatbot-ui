@@ -4,7 +4,7 @@ import { BaseChatbot } from '@app/BaseChatbot/BaseChatbot';
 const RHEL: React.FunctionComponent = () => (
   <BaseChatbot
     title="Red Hat Enterprise Linux"
-    url="https://quarkus-llm-router-rhsaia-dev.apps.rhsaia.vg6c.p1.openshiftapps.com/assistant/chat/streaming"
+    url={process.env.REACT_APP_ROUTER_URL ?? ''}
     assistantName="default_rhel"
   />
 );
