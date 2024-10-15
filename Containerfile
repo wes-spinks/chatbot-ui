@@ -9,6 +9,12 @@ COPY package*.json ./
 # Create .cache directories 
 USER root
 
+# Install npm
+RUN microdnf install -y npm
+
+# Install srdv
+RUN npm install -g snyk-resolve-deps
+
 # Expose the port the app will run on
 USER 1001
 
