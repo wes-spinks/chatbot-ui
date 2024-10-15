@@ -57,14 +57,23 @@ jobs:
       - name: Install dependencies
         run: |
           npm install
-      # TODO: Figure out a cleaner way to do this
+      - name: Build Application
+        run: |
+          npm run build
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 1
+      
       - name: 'Tar files'
-        run: tar -cvf code.tar .
+        run: tar -cvf node_modules.tar node_modules
       - name: Archive node modules
         uses: actions/upload-artifact@v4
         with:
-          name: code
-          path: code.tar
+          name: node_modules
+          path: node_modules.tar
           include-hidden-files: true
           retention-days: 1
   build-image:
@@ -84,15 +93,21 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
           registry: ${{ env.IMAGE_BASE_REGISTRY }}
+
+      - name: Download production artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
       
       - name: Download node modules
         uses: actions/download-artifact@v4
         with:
-          name: code
+          name: node_modules
           path: .
       
       - name: 'Untar files'
-        run: tar -xvf code.tar
+        run: tar -xvf node_modules.tar
 
       - name: Build and push
         uses: docker/build-push-action@v2
