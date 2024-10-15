@@ -66,11 +66,14 @@ jobs:
           name: dist
           path: dist
           retention-days: 1
+      
+      - name: 'Tar files'
+        run: tar -cvf node_modules.tar node_modules
       - name: Archive node modules
         uses: actions/upload-artifact@v4
         with:
           name: node_modules
-          path: node_modules
+          path: node_modules.tar
           include-hidden-files: true
           retention-days: 1
   build-image:
@@ -100,8 +103,11 @@ jobs:
       - name: Download node modules
         uses: actions/download-artifact@v4
         with:
-          name: node_modules
-          path: node_modules
+          name: node_modules.tar
+          path: node_modules.tar
+      
+      - name: 'Untar files'
+        run: tar -xvf node_modules.tar
 
       - name: Build and push
         uses: docker/build-push-action@v2
