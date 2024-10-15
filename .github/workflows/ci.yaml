@@ -71,6 +71,7 @@ jobs:
         with:
           name: node_modules
           path: node_modules
+          include-hidden-files: true
           retention-days: 1
   build-image:
     needs: build
