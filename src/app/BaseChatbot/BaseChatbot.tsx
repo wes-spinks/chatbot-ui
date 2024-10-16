@@ -138,7 +138,7 @@ const BaseChatbot: React.FunctionComponent = () => {
     return date.toString();
   };
 
-  const handleSend = async (input) => {
+  const handleSend = async (input: string) => {
     setIsSendButtonDisabled(true);
     const newMessages = structuredClone(messages);
     if (currentMessage.length > 0) {
@@ -158,13 +158,15 @@ const BaseChatbot: React.FunctionComponent = () => {
     setAnnouncement(`Message from You: ${input}. Message from Chatbot is loading.`);
 
     const sources = await fetchData(input).catch((e) => {
+      console.log(e);
       setError(e.message);
+      setAnnouncement(`Error: ${e.message}`);
     });
     if (sources) {
       setCurrentSources(sources);
     }
     // make announcement to assistive devices that new message has been added
-    setAnnouncement(`Message from Chatbot: ${currentMessage.join('')}`);
+    currentMessage.length > 0 && setAnnouncement(`Message from Chatbot: ${currentMessage.join('')}`);
     setIsSendButtonDisabled(false);
   };
 
