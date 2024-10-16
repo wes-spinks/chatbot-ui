@@ -119,7 +119,16 @@ module.exports = (env) => {
         silent: true,
       }),
       new CopyPlugin({
-        patterns: [{ from: './src/favicon.png', to: 'images' }],
+        patterns: [
+          { from: './src/favicon.ico', to: 'images' },
+          { from: './src/favicon.svg', to: 'images' },
+          { from: './src/favicon.png', to: 'images' },
+          { from: './src/apple-touch-icon.png', to: 'images' },
+          { from: './src/favicon-48x48.png', to: 'images' },
+          { from: './src/web-app-manifest-192x192.png', to: 'images' },
+          { from: './src/web-app-manifest-512x512.png', to: 'images' },
+          { from: './src/site.webmanifest', to: 'images' },
+        ],
       }),
     ],
     resolve: {

@@ -3,10 +3,3 @@ body,
 #root {
   height: 100%;
 }
-
-.composer-ai__home {
-  display: flex;
-  flex-direction: column;
-  gap: var(--pf-t--global--spacer--lg);
-  align-items: center;
-}
