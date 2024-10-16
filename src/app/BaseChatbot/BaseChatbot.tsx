@@ -56,11 +56,20 @@ const BaseChatbot: React.FunctionComponent = () => {
   const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(false);
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
   const [error, setError] = React.useState<string>();
+  const [announcement, setAnnouncement] = React.useState<string>();
   const { chatbot } = useLoaderData() as { chatbot: CannedChatbot };
 
   React.useEffect(() => {
-    document.title = `PatternFly React Seed | ${chatbot.displayName}`;
+    document.title = `Red Hat Composer AI Studio | ${chatbot.name}`;
+  }, []);
+
+  React.useEffect(() => {
+    document.title = `Red Hat Composer AI Studio | ${chatbot.name}`;
   }, [chatbot]);
+
+  React.useEffect(() => {
+    document.title = `Red Hat Composer AI Studio | ${chatbot.name}${announcement ? ` - ${announcement}` : ''}`;
+  }, [announcement]);
 
   // Auto-scrolls to the latest message
   React.useEffect(() => {
@@ -129,7 +138,7 @@ const BaseChatbot: React.FunctionComponent = () => {
     return date.toString();
   };
 
-  const handleSend = async (input) => {
+  const handleSend = async (input: string) => {
     setIsSendButtonDisabled(true);
     const newMessages = structuredClone(messages);
     if (currentMessage.length > 0) {
@@ -145,13 +154,19 @@ const BaseChatbot: React.FunctionComponent = () => {
     }
     newMessages.push({ id: getId(), name: 'You', role: 'user', content: input });
     setMessages(newMessages);
+    // make announcement to assistive devices that new messages have been added
+    setAnnouncement(`Message from You: ${input}. Message from Chatbot is loading.`);
 
     const sources = await fetchData(input).catch((e) => {
       setError(e.message);
+      // make announcement to assistive devices that there was an error
+      setAnnouncement(`Error: ${e.message}`);
     });
     if (sources) {
       setCurrentSources(sources);
     }
+    // make announcement to assistive devices that new message has been added
+    currentMessage.length > 0 && setAnnouncement(`Message from Chatbot: ${currentMessage.join('')}`);
     setIsSendButtonDisabled(false);
   };
 
@@ -175,7 +190,7 @@ const BaseChatbot: React.FunctionComponent = () => {
             title={error}
           />
         )}
-        <MessageBox>
+        <MessageBox announcement={announcement}>
           <ChatbotWelcomePrompt title="Hello, Chatbot User" description="How may I help you today?" />
           {messages.map((message) => (
             <Message key={message.id} {...message} />
