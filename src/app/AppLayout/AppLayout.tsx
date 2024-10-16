@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLoaderData, useLocation } from 'react-router-dom';
 import {
   Button,
   Masthead,
@@ -9,7 +9,6 @@ import {
   MastheadToggle,
   Nav,
   NavExpandable,
-  NavGroup,
   NavItem,
   NavList,
   Page,
@@ -17,14 +16,48 @@ import {
   PageSidebarBody,
   SkipToContent,
 } from '@patternfly/react-core';
-import { IAppRoute, IAppRouteGroup, routes } from '@app/routes';
+import { IAppRoute, IAppRouteGroup, routes as staticRoutes } from '@app/routes';
 import { BarsIcon } from '@patternfly/react-icons';
-interface IAppLayout {
-  children: React.ReactNode;
+import { CannedChatbot } from '../types/CannedChatbot';
+
+const getChatbots = () => {
+  const url = process.env.REACT_APP_INFO_URL ?? '';
+  return fetch(url)
+    .then((res) => res.json())
+    .then((data: CannedChatbot[]) => {
+      return data;
+    })
+    .catch((e) => {
+      throw new Response(e.message, { status: 404 });
+    });
+};
+
+export async function loader() {
+  const chatbots = await getChatbots();
+  return { chatbots };
 }
 
-const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
+const AppLayout: React.FunctionComponent = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  const [routes, setRoutes] = React.useState(staticRoutes);
+  const { chatbots } = useLoaderData();
+
+  React.useEffect(() => {
+    if (chatbots) {
+      const newRoutes = structuredClone(routes);
+      chatbots.forEach((chatbot) => {
+        const isNotPresent = routes.filter((route) => route.path === `assistants/${chatbot.name}`).length === 0;
+        if (isNotPresent) {
+          newRoutes.push({
+            path: `assistants/${chatbot.name}`,
+            label: chatbot.displayName,
+            title: chatbot.displayName,
+          });
+        }
+      });
+      setRoutes(newRoutes);
+    }
+  }, []);
 
   const masthead = (
     <Masthead>
@@ -91,9 +124,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
 
   const renderNavItem = (route: IAppRoute, index: number) => (
     <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={route.path === location.pathname}>
-      <NavLink exact={route.exact} to={route.path}>
-        {route.label}
-      </NavLink>
+      <NavLink to={route.path}>{route.label}</NavLink>
     </NavItem>
   );
 
@@ -111,11 +142,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const Navigation = (
     <Nav id="nav-primary-simple">
       <NavList id="nav-list-simple">
-        <NavGroup title="AI assistants">
-          {routes.map(
-            (route, idx) => route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx)),
-          )}
-        </NavGroup>
+        {routes.map(
+          (route, idx) => route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx)),
+        )}
       </NavList>
     </Nav>
   );
@@ -149,7 +178,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       skipToContent={PageSkipToContent}
       isContentFilled
     >
-      {children}
+      <Outlet />
     </Page>
   );
 };

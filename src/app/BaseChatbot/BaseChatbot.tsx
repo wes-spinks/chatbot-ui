@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   Chatbot,
+  ChatbotAlert,
   ChatbotContent,
   ChatbotDisplayMode,
   ChatbotFooter,
@@ -14,23 +15,60 @@ import {
   MessageBox,
   MessageProps,
 } from '@patternfly/virtual-assistant';
-
+import { useLoaderData } from 'react-router-dom';
+import { CannedChatbot } from '../types/CannedChatbot';
 interface Source {
   link: string;
 }
 
-export interface BaseChatbotProps {
-  title: string;
-  url: string;
-  assistantName: string;
+const getChatbot = (id: string) => {
+  const url = process.env.REACT_APP_INFO_URL ?? '';
+  return fetch(url)
+    .then((res) => res.json())
+    .then((data: CannedChatbot[]) => {
+      const filteredChatbots = data.filter((chatbot) => chatbot.name === id);
+      if (filteredChatbots.length > 0) {
+        return {
+          title: filteredChatbots[0].displayName,
+          assistantName: filteredChatbots[0].name,
+          id: filteredChatbots[0].id,
+          llmConnection: filteredChatbots[0].llmConnection,
+          retrieverConnection: filteredChatbots[0].retrieverConnection,
+        };
+      } else {
+        throw new Response('Not Found', { status: 404 });
+      }
+    })
+    .catch((e) => {
+      throw new Response(e.message, { status: 404 });
+    });
+};
+
+export async function loader({ params }) {
+  const chatbot = await getChatbot(params.chatbotId);
+  return { chatbot };
 }
 
-const BaseChatbot: React.FunctionComponent<BaseChatbotProps> = ({ title, url, assistantName }) => {
+const BaseChatbot: React.FunctionComponent = () => {
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
   const [currentSources, setCurrentSources] = React.useState<Source[]>();
   const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(false);
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
+  const [error, setError] = React.useState<string>();
+  const [stopStream, setStopStream] = React.useState(false);
+  const { chatbot } = useLoaderData();
+
+  React.useEffect(() => {
+    document.title = `PatternFly React Seed | ${chatbot.title}`;
+    // React Router reuses base components so we need to reset manually whenever the chatbot changes
+    setMessages([]);
+    setCurrentMessage([]);
+    setCurrentSources(undefined);
+    setIsSendButtonDisabled(false);
+    setError(undefined);
+    setStopStream(true);
+  }, [chatbot]);
 
   // Auto-scrolls to the latest message
   React.useEffect(() => {
@@ -39,6 +77,8 @@ const BaseChatbot: React.FunctionComponent<BaseChatbotProps> = ({ title, url, as
       scrollToBottomRef.current?.scrollIntoView();
     }
   }, [messages, currentMessage, currentSources]);
+
+  const url = process.env.REACT_APP_ROUTER_URL ?? '';
 
   async function fetchData(userMessage: string) {
     let isSource = false;
@@ -49,7 +89,7 @@ const BaseChatbot: React.FunctionComponent<BaseChatbotProps> = ({ title, url, as
       },
       body: JSON.stringify({
         message: userMessage,
-        assistantName,
+        assistantName: chatbot.assistantName,
       }),
     });
 
@@ -62,7 +102,7 @@ const BaseChatbot: React.FunctionComponent<BaseChatbotProps> = ({ title, url, as
     let done;
     const sources: string[] = [];
 
-    while (!done) {
+    while (!done || !stopStream) {
       const { done, value } = await reader.read();
       if (done) {
         break;
@@ -92,13 +132,17 @@ const BaseChatbot: React.FunctionComponent<BaseChatbotProps> = ({ title, url, as
     return undefined;
   }
 
+  const getId = () => {
+    const date = Date.now() + Math.random();
+    return date.toString();
+  };
+
   const handleSend = async (input) => {
     setIsSendButtonDisabled(true);
     const newMessages = structuredClone(messages);
     if (currentMessage.length > 0) {
-      const id = Date.now() + Math.random();
       newMessages.push({
-        id: id.toString(),
+        id: getId(),
         name: 'Chatbot',
         role: 'bot',
         content: currentMessage.join(''),
@@ -107,12 +151,15 @@ const BaseChatbot: React.FunctionComponent<BaseChatbotProps> = ({ title, url, as
       setCurrentMessage([]);
       setCurrentSources(undefined);
     }
-    newMessages.push({ id: '', name: 'You', role: 'user', content: input });
+    newMessages.push({ id: getId(), name: 'You', role: 'user', content: input });
     setMessages(newMessages);
 
-    await fetchData(input);
-    const sources = await fetchData(input);
-    setCurrentSources(sources);
+    const sources = await fetchData(input).catch((e) => {
+      setError(e.message);
+    });
+    if (sources) {
+      setCurrentSources(sources);
+    }
     setIsSendButtonDisabled(false);
   };
 
@@ -122,10 +169,20 @@ const BaseChatbot: React.FunctionComponent<BaseChatbotProps> = ({ title, url, as
     <Chatbot displayMode={displayMode}>
       <ChatbotHeader>
         <ChatbotHeaderMain>
-          <ChatbotHeaderTitle>{title}</ChatbotHeaderTitle>
+          <ChatbotHeaderTitle>{chatbot.title}</ChatbotHeaderTitle>
         </ChatbotHeaderMain>
       </ChatbotHeader>
       <ChatbotContent>
+        {error && (
+          <ChatbotAlert
+            variant="danger"
+            // eslint-disable-next-line no-console
+            onClose={() => {
+              setError(undefined);
+            }}
+            title={error}
+          />
+        )}
         <MessageBox>
           <ChatbotWelcomePrompt title="Hello, Chatbot User" description="How may I help you today?" />
           {messages.map((message) => (
