@@ -40,13 +40,19 @@ export async function loader() {
 const AppLayout: React.FunctionComponent = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [routes, setRoutes] = React.useState(staticRoutes);
-  const { chatbots } = useLoaderData();
+  const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
 
   React.useEffect(() => {
     if (chatbots) {
       const newRoutes = structuredClone(routes);
       chatbots.forEach((chatbot) => {
-        const isNotPresent = routes.filter((route) => route.path === `assistants/${chatbot.name}`).length === 0;
+        const isNotPresent =
+          routes.filter((route) => {
+            if ('path' in route) {
+              return route.path === `assistants/${chatbot.name}`;
+            }
+            return false;
+          }).length === 0;
         if (isNotPresent) {
           newRoutes.push({
             path: `assistants/${chatbot.name}`,

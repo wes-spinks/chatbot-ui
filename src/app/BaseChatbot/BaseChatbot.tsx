@@ -29,8 +29,8 @@ const getChatbot = (id: string) => {
       const filteredChatbots = data.filter((chatbot) => chatbot.name === id);
       if (filteredChatbots.length > 0) {
         return {
-          title: filteredChatbots[0].displayName,
-          assistantName: filteredChatbots[0].name,
+          displayName: filteredChatbots[0].displayName,
+          name: filteredChatbots[0].name,
           id: filteredChatbots[0].id,
           llmConnection: filteredChatbots[0].llmConnection,
           retrieverConnection: filteredChatbots[0].retrieverConnection,
@@ -57,10 +57,10 @@ const BaseChatbot: React.FunctionComponent = () => {
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
   const [error, setError] = React.useState<string>();
   const [stopStream, setStopStream] = React.useState(false);
-  const { chatbot } = useLoaderData();
+  const { chatbot } = useLoaderData() as { chatbot: CannedChatbot };
 
   React.useEffect(() => {
-    document.title = `PatternFly React Seed | ${chatbot.title}`;
+    document.title = `PatternFly React Seed | ${chatbot.displayName}`;
     // React Router reuses base components so we need to reset manually whenever the chatbot changes
     setMessages([]);
     setCurrentMessage([]);
@@ -89,7 +89,7 @@ const BaseChatbot: React.FunctionComponent = () => {
       },
       body: JSON.stringify({
         message: userMessage,
-        assistantName: chatbot.assistantName,
+        assistantName: chatbot.name,
       }),
     });
 
@@ -169,7 +169,7 @@ const BaseChatbot: React.FunctionComponent = () => {
     <Chatbot displayMode={displayMode}>
       <ChatbotHeader>
         <ChatbotHeaderMain>
-          <ChatbotHeaderTitle>{chatbot.title}</ChatbotHeaderTitle>
+          <ChatbotHeaderTitle>{chatbot.displayName}</ChatbotHeaderTitle>
         </ChatbotHeaderMain>
       </ChatbotHeader>
       <ChatbotContent>
