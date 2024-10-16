@@ -158,8 +158,8 @@ const BaseChatbot: React.FunctionComponent = () => {
     setAnnouncement(`Message from You: ${input}. Message from Chatbot is loading.`);
 
     const sources = await fetchData(input).catch((e) => {
-      console.log(e);
       setError(e.message);
+      // make announcement to assistive devices that there was an error
       setAnnouncement(`Error: ${e.message}`);
     });
     if (sources) {
