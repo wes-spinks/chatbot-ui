@@ -20,7 +20,7 @@ export interface IAppRouteGroup {
 export type AppRouteConfig = IAppRoute | IAppRouteGroup;
 
 // used for navigation panel
-const routes: AppRouteConfig[] = [{ path: '/', label: 'Home', title: 'PatternFly React Seed | Home' }];
+const routes: AppRouteConfig[] = [{ path: '/', label: 'Home', title: 'Red Hat Composer AI Studio | Home' }];
 
 // used for actual routing
 const router = createBrowserRouter([
