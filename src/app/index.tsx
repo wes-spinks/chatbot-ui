@@ -1,17 +1,10 @@
 import * as React from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { AppLayout } from '@app/AppLayout/AppLayout';
-import { AppRoutes } from '@app/routes';
+import { RouterProvider } from 'react-router-dom';
+import { router } from '@app/routes';
 import '@app/app.css';
 import '@patternfly/react-core/dist/styles/base.css';
 import '@patternfly/virtual-assistant/dist/css/main.css';
 
-const App: React.FunctionComponent = () => (
-  <Router>
-    <AppLayout>
-      <AppRoutes />
-    </AppLayout>
-  </Router>
-);
+const App: React.FunctionComponent = () => <RouterProvider router={router} />;
 
 export default App;
