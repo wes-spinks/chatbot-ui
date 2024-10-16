@@ -187,7 +187,13 @@ const AppLayout: React.FunctionComponent = () => {
 
   const renderNavItem = (route: IAppRoute, index: number) => (
     <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={route.path === location.pathname}>
-      <NavLink to={route.path} reloadDocument>
+      <NavLink
+        to={route.path}
+        reloadDocument
+        className={({ isActive, isPending, isTransitioning }) =>
+          [isPending ? 'pending' : '', isActive ? 'active' : '', isTransitioning ? 'transitioning' : ''].join(' ')
+        }
+      >
         {route.label}
       </NavLink>
     </NavItem>
