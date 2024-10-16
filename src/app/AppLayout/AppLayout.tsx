@@ -130,7 +130,9 @@ const AppLayout: React.FunctionComponent = () => {
 
   const renderNavItem = (route: IAppRoute, index: number) => (
     <NavItem key={`${route.label}-${index}`} id={`${route.label}-${index}`} isActive={route.path === location.pathname}>
-      <NavLink to={route.path}>{route.label}</NavLink>
+      <NavLink to={route.path} reloadDocument>
+        {route.label}
+      </NavLink>
     </NavItem>
   );
 

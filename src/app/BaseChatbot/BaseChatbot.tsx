@@ -56,18 +56,10 @@ const BaseChatbot: React.FunctionComponent = () => {
   const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(false);
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
   const [error, setError] = React.useState<string>();
-  const [stopStream, setStopStream] = React.useState(false);
   const { chatbot } = useLoaderData() as { chatbot: CannedChatbot };
 
   React.useEffect(() => {
     document.title = `PatternFly React Seed | ${chatbot.displayName}`;
-    // React Router reuses base components so we need to reset manually whenever the chatbot changes
-    setMessages([]);
-    setCurrentMessage([]);
-    setCurrentSources(undefined);
-    setIsSendButtonDisabled(false);
-    setError(undefined);
-    setStopStream(true);
   }, [chatbot]);
 
   // Auto-scrolls to the latest message
@@ -102,7 +94,7 @@ const BaseChatbot: React.FunctionComponent = () => {
     let done;
     const sources: string[] = [];
 
-    while (!done || !stopStream) {
+    while (!done) {
       const { done, value } = await reader.read();
       if (done) {
         break;
