@@ -3,3 +3,8 @@ body,
 #root {
   height: 100%;
 }
+
+.pf-v6-c-page__main,
+pf-v6-c-page__main-container.pf-m-fill {
+  overflow-y: hidden;
+}
