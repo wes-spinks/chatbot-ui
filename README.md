@@ -1,4 +1,6 @@
-# Patternfly Seed
+# Composer AI Studio
+
+Composer AI Studio is based off PatternFly Seed.
 
 Patternfly Seed is an open source build scaffolding utility for web apps. The primary purpose of this project is to give developers a jump start when creating new projects that will use patternfly. A secondary purpose of this project is to serve as a reference for how to configure various aspects of an application that uses patternfly, webpack, react, typescript, etc.
 
@@ -7,6 +9,13 @@ Out of the box you'll get an app layout with chrome (header/sidebar), routing, b
 <img width="1058" alt="Out of box dashboard view of patternfly seed" src="https://user-images.githubusercontent.com/5942899/103803761-03a0a500-501f-11eb-870a-345d7d035e6b.png">
 
 ## Quick-start
+
+Create a .env file with the following values (ask for the real URLs)
+
+```
+REACT_APP_ROUTER_URL=''
+REACT_APP_INFO_URL=''
+```
 
 ```bash
 git clone https://github.com/patternfly/patternfly-react-seed
@@ -114,9 +123,7 @@ With that in place, you can use the values in your code like `console.log(proces
 
 Lets make the port that we run on configurable.
 
-The assistants will need to be dynamic. Eventually we are going to want the ability to add/remove them (which will be taken care of by calls to the backend)
-
-Add a button to stop a streaming response
+Add a button to stop a streaming response -> filed Ticket with @patternfly/virtual-assistant
 
 (Infra) Set the Registry Secrets at the org level
 
