@@ -18,8 +18,6 @@ REACT_APP_INFO_URL=''
 ```
 
 ```bash
-git clone https://github.com/patternfly/patternfly-react-seed
-cd patternfly-react-seed
 npm install && npm run start:dev
 ```
 
