@@ -55,7 +55,7 @@ const BaseChatbot: React.FunctionComponent = () => {
   const [currentSources, setCurrentSources] = React.useState<Source[]>();
   const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(false);
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
-  const [error, setError] = React.useState<string>();
+  const [error, setError] = React.useState<{ title: string; body: string }>();
   const [announcement, setAnnouncement] = React.useState<string>();
   const { chatbot } = useLoaderData() as { chatbot: CannedChatbot };
 
@@ -95,7 +95,14 @@ const BaseChatbot: React.FunctionComponent = () => {
     });
 
     if (!response.ok || !response.body) {
-      throw new Error('Network response was not ok');
+      switch (response.status) {
+        case 500:
+          throw new Error('500');
+        case 404:
+          throw new Error('404');
+        default:
+          throw new Error('Other');
+      }
     }
 
     const reader = response.body.getReader();
@@ -138,6 +145,25 @@ const BaseChatbot: React.FunctionComponent = () => {
     return date.toString();
   };
 
+  const ERROR_TITLE = {
+    'Error: 404': '404: Network error',
+    'Error: 500': 'Server error',
+    'Error: Other': 'Error',
+  };
+
+  const ERROR_BODY = {
+    'Error: 404': `${chatbot.displayName} is currently unavailable. Use a different assistant or try again later.`,
+    'Error: 500': `${chatbot.displayName} has encountered an error and is unable to answer your question. Use a different assistant or try again later.`,
+    'Error: Other': `${chatbot.displayName} has encountered an error and is unable to answer your question. Use a different assistant or try again later.`,
+  };
+
+  const handleError = (e: string) => {
+    const newError = { title: ERROR_TITLE[e], body: ERROR_BODY[e] };
+    setError(newError);
+    // make announcement to assistive devices that there was an error
+    setAnnouncement(`Error: ${newError.title} ${newError.body}`);
+  };
+
   const handleSend = async (input: string) => {
     setIsSendButtonDisabled(true);
     const newMessages = structuredClone(messages);
@@ -158,9 +184,7 @@ const BaseChatbot: React.FunctionComponent = () => {
     setAnnouncement(`Message from You: ${input}. Message from Chatbot is loading.`);
 
     const sources = await fetchData(input).catch((e) => {
-      setError(e.message);
-      // make announcement to assistive devices that there was an error
-      setAnnouncement(`Error: ${e.message}`);
+      handleError(e);
     });
     if (sources) {
       setCurrentSources(sources);
@@ -180,17 +204,19 @@ const BaseChatbot: React.FunctionComponent = () => {
         </ChatbotHeaderMain>
       </ChatbotHeader>
       <ChatbotContent>
-        {error && (
-          <ChatbotAlert
-            variant="danger"
-            // eslint-disable-next-line no-console
-            onClose={() => {
-              setError(undefined);
-            }}
-            title={error}
-          />
-        )}
         <MessageBox announcement={announcement}>
+          {error && (
+            <ChatbotAlert
+              variant="danger"
+              // eslint-disable-next-line no-console
+              onClose={() => {
+                setError(undefined);
+              }}
+              title={error.title}
+            >
+              {error.body}
+            </ChatbotAlert>
+          )}
           <ChatbotWelcomePrompt title="Hello, Chatbot User" description="How may I help you today?" />
           {messages.map((message) => (
             <Message key={message.id} {...message} />
