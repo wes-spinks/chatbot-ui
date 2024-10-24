@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NavLink, Outlet, useLoaderData, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   Brand,
   Button,
@@ -17,56 +17,13 @@ import {
   PageSidebarBody,
   SkipToContent,
 } from '@patternfly/react-core';
-import { IAppRoute, IAppRouteGroup, routes as staticRoutes } from '@app/routes';
+import { IAppRoute, IAppRouteGroup, routes } from '@app/routes';
 import { BarsIcon } from '@patternfly/react-icons';
-import { CannedChatbot } from '../types/CannedChatbot';
 import logo from '@app/bgimages/Logo-Red_Hat-Composer_AI_Studio-A-Standard-RGB.svg';
 import logoDark from '@app/bgimages/Logo-Red_Hat-Composer_AI_Studio-A-Reverse.svg';
 
-const getChatbots = () => {
-  const url = process.env.REACT_APP_INFO_URL ?? '';
-  return fetch(url)
-    .then((res) => res.json())
-    .then((data: CannedChatbot[]) => {
-      return data;
-    })
-    .catch((e) => {
-      throw new Response(e.message, { status: 404 });
-    });
-};
-
-export async function loader() {
-  const chatbots = await getChatbots();
-  return { chatbots };
-}
-
 const AppLayout: React.FunctionComponent = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
-  const [routes, setRoutes] = React.useState(staticRoutes);
-  const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
-
-  React.useEffect(() => {
-    if (chatbots) {
-      const newRoutes = structuredClone(routes);
-      chatbots.forEach((chatbot) => {
-        const isNotPresent =
-          routes.filter((route) => {
-            if ('path' in route) {
-              return route.path === `assistants/${chatbot.name}`;
-            }
-            return false;
-          }).length === 0;
-        if (isNotPresent) {
-          newRoutes.push({
-            path: `assistants/${chatbot.name}`,
-            label: chatbot.displayName,
-            title: chatbot.displayName,
-          });
-        }
-      });
-      setRoutes(newRoutes);
-    }
-  }, []);
 
   const masthead = (
     <Masthead>

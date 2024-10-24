@@ -12,3 +12,9 @@ pf-v6-c-page__main-container.pf-m-fill {
 .active {
   background-color: var(--pf-t--global--background--color--primary--default);
 }
+
+.assistant-selector-menu {
+  max-width: 60vw;
+  max-height: 80vh;
+  overflow-y: auto;
+}
