@@ -177,6 +177,7 @@ const BaseChatbot: React.FunctionComponent = () => {
           handleError(error);
         }
       }
+      return undefined;
     } finally {
       setController(undefined);
     }
@@ -259,6 +260,7 @@ const BaseChatbot: React.FunctionComponent = () => {
           <Dropdown
             className="assistant-selector-menu"
             isOpen={isOpen}
+            // @ts-expect-error PatternFly limits us to strings or numbers; we need an object
             onSelect={onSelect}
             onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
             ouiaId="BasicDropdown"
