@@ -2,7 +2,7 @@ import * as React from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { NotFound } from '@app/NotFound/NotFound';
 import { BaseChatbot, loader as chatbotLoader } from './BaseChatbot/BaseChatbot';
-import { AppLayout, loader as layoutLoader } from './AppLayout/AppLayout';
+import { AppLayout } from './AppLayout/AppLayout';
 import { Home } from './Home/Home';
 
 export interface IAppRoute {
@@ -20,13 +20,15 @@ export interface IAppRouteGroup {
 export type AppRouteConfig = IAppRoute | IAppRouteGroup;
 
 // used for navigation panel
-const routes: AppRouteConfig[] = [{ path: '/', label: 'Home', title: 'Red Hat Composer AI Studio | Home' }];
+const routes: AppRouteConfig[] = [
+  { path: '/', label: 'Home', title: 'Red Hat Composer AI Studio | Home' },
+  { path: '/chats', label: 'Chats', title: 'Red Hat Composer AI Studio | Chats' },
+];
 
 // used for actual routing
 const router = createBrowserRouter([
   {
     element: <AppLayout />,
-    loader: layoutLoader,
     errorElement: <NotFound />,
     children: [
       {
@@ -34,7 +36,7 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: 'assistants/:chatbotId',
+        path: 'Chats',
         element: <BaseChatbot />,
         loader: chatbotLoader,
         errorElement: <NotFound />,
