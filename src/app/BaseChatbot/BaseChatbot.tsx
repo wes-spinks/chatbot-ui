@@ -75,9 +75,11 @@ const BaseChatbot: React.FunctionComponent = () => {
 
   // Auto-scrolls to the latest message
   React.useEffect(() => {
-    // don't scroll the first load, but scroll if there's a current stream or a new source has popped up
-    if (messages.length > 0 || currentMessage || currentSources) {
-      scrollToBottomRef.current?.scrollIntoView();
+    if (scrollToBottomRef.current) {
+      // don't scroll the first load, but scroll if there's a current stream or a new source has popped up
+      if (messages.length > 0 || currentMessage || currentSources) {
+        scrollToBottomRef.current.scrollIntoView();
+      }
     }
   }, [messages, currentMessage, currentSources]);
 
