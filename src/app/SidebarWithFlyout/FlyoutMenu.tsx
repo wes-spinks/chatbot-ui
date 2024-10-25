@@ -31,7 +31,6 @@ export const FlyoutMenu: React.FunctionComponent<FlyoutMenuProps> = ({
     active: true,
     'aria-labelledby': id,
     focusTrapOptions: {
-      //fallbackFocus: () => panel.current,
       onActivate: () => {
         if (previouslyFocusedElement.current !== document.activeElement) {
           //@ts-expect-error can't assign to current

@@ -9,6 +9,7 @@ interface FlyoutStartScreenProps {
   primaryButtonText?: string;
   secondaryButtonText?: string;
 }
+
 export const FlyoutStartScreen: React.FunctionComponent<FlyoutStartScreenProps> = ({
   image,
   imageAlt,

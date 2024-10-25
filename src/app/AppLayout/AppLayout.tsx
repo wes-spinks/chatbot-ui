@@ -19,6 +19,8 @@ import { SidebarWithFlyout } from '@app/SidebarWithFlyout/SidebarWithFlyout';
 const AppLayout: React.FunctionComponent = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
+  // If you close the sidebar on mobile and go back to desktop, you lose it forever (or at least until reload)
+  // This forces it to reopen if that happens.
   React.useEffect(() => {
     const updateSidebar = () => {
       if (window.innerWidth >= 1200) {
@@ -30,19 +32,6 @@ const AppLayout: React.FunctionComponent = () => {
     return () => {
       window.removeEventListener('resize', updateSidebar);
     };
-  }, []);
-
-  // set height of flyout to match nav
-  React.useEffect(() => {
-    const sourceElement = document.getElementById('nav-primary-simple');
-    if (sourceElement) {
-      const height = sourceElement.offsetHeight;
-
-      const targetElements = document.getElementsByClassName('flyoutMenu');
-      for (let i = 0; i < targetElements.length; i++) {
-        (targetElements[i] as HTMLElement).style.height = `${height}px`;
-      }
-    }
   }, []);
 
   const masthead = (

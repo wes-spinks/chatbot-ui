@@ -8,11 +8,13 @@ import { FlyoutMenu } from './FlyoutMenu';
 import { NavLink } from 'react-router-dom';
 
 export const SidebarWithFlyout: React.FunctionComponent = () => {
+  const [sidebarHeight, setSidebarHeight] = useState(0);
   const [visibleFlyout, setVisibleFlyout] = useState(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const flyoutMenuRef = useRef<HTMLDivElement>(null);
-  const [sidebarHeight, setSidebarHeight] = useState(0);
 
+  // Capture sidebar height initially and whenever it changes.
+  // We use this to control the flyout height.
   useEffect(() => {
     const updateHeight = () => {
       if (sidebarRef.current) {
@@ -20,21 +22,22 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
       }
     };
 
-    const handleClick = (event) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-        setVisibleFlyout(null);
-      }
-    };
-
     // Set initial height and add event listeners for window resize
     updateHeight();
     window.addEventListener('resize', updateHeight);
-    window.addEventListener('click', handleClick);
 
     return () => {
-      window.removeEventListener('click', handleClick);
+      window.removeEventListener('resize', updateHeight);
     };
   }, []);
+
+  // Adjust flyout height to match the sidebar height when flyout is visible
+  useEffect(() => {
+    if (visibleFlyout && sidebarRef.current && flyoutMenuRef.current) {
+      const sidebarHeight = sidebarRef.current.offsetHeight;
+      flyoutMenuRef.current.style.height = `${sidebarHeight}px`;
+    }
+  }, [visibleFlyout]);
 
   const toggleFlyout = (e) => {
     if (visibleFlyout === e.target.innerText) {
@@ -43,15 +46,6 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
       setVisibleFlyout(e.target.innerText);
     }
   };
-
-  // Adjust flyout height to match the sidebar height when flyout is visible
-  useEffect(() => {
-    if (visibleFlyout && sidebarRef.current && flyoutMenuRef.current) {
-      const sidebarHeight = sidebarRef.current.offsetHeight;
-      flyoutMenuRef.current.style.height = `${sidebarHeight}px`;
-      flyoutMenuRef.current.focus();
-    }
-  }, [visibleFlyout]);
 
   return (
     <PageSidebar>
@@ -84,8 +78,6 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
               onClick={toggleFlyout}
               aria-haspopup="dialog"
               aria-expanded={visibleFlyout === 'Chats'}
-              // button would make more sense
-              // probably something easier to look at it.
             >
               Chats
             </NavItem>
