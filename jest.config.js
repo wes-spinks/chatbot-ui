@@ -6,27 +6,35 @@ module.exports = {
   clearMocks: true,
 
   // Indicates whether the coverage information should be collected while executing the test
-  collectCoverage: false,
+  collectCoverage: true,
+
+  collectCoverageFrom: ['<rootDir>/src/app/**/*.tsx'],
 
   // The directory where Jest should output its coverage files
   coverageDirectory: 'coverage',
 
   // An array of directory names to be searched recursively up from the requiring module's location
-  moduleDirectories: [
-    "node_modules",
-    "<rootDir>/src"
-  ],
+  moduleDirectories: ['node_modules', '<rootDir>/src'],
 
   // A map from regular expressions to module names that allow to stub out resources with a single module
   moduleNameMapper: {
     '\\.(css|less)$': '<rootDir>/__mocks__/styleMock.js',
-    "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
-    "@app/(.*)": '<rootDir>/src/app/$1'
+    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
+      '<rootDir>/__mocks__/fileMock.js',
+    '@app/(.*)': '<rootDir>/src/app/$1',
   },
 
   // A preset that is used as a base for Jest's configuration
-  preset: "ts-jest/presets/js-with-ts",
+  preset: 'ts-jest/presets/js-with-ts',
 
   // The test environment that will be used for testing.
-  testEnvironment: "jsdom",
+  testEnvironment: 'jsdom',
+
+  transformIgnorePatterns: [
+    'node_modules/(?!@patternfly|react-syntax-highlighter|remark-gfm|react-markdown|remark-parse|devlop|hast-util-to-jsx-runtime|comma-separated-tokens|estree-util-is-identifier-name|hast-util-whitespace|property-information|space-separated-tokens|unist-util-position|vfile-message|unist-util-stringify-position|html-url-attributes|mdast-util-from-markdown|mdast-util-to-string|micromark|decode-named-character-reference|remark-rehype|mdast-util-to-hast|trim-lines|unist-util-visit|unist-util-is|unified|bail|is-plain-obj|trough|vfile|mdast-util-gfm|ccount|mdast-util-find-and-replace|escape-string-regexp|markdown-table|mdast-util-to-markdown|zwitch|longest-streak|mdast-util-phrasing)',
+  ],
+
+  transform: {
+    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+  },
 };
