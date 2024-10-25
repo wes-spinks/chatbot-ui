@@ -68,22 +68,20 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
           <NavList>
             <NavItem to="/">Home</NavItem>
             <NavItem
-              to=""
+              component="button"
               onClick={toggleFlyout}
-              aria-haspopup="menu"
-              aria-expanded={visibleFlyout !== null}
-              isActive={visibleFlyout === 'Chats'}
+              aria-haspopup="dialog"
+              aria-expanded={visibleFlyout === 'Chats'}
               // button would make more sense
               // probably something easier to look at it.
             >
               Chats
             </NavItem>
             <NavItem
-              to=""
+              component="button"
               onClick={toggleFlyout}
-              aria-haspopup="menu"
-              aria-expanded={visibleFlyout !== null}
-              isActive={visibleFlyout === 'Assistants'}
+              aria-haspopup="dialog"
+              aria-expanded={visibleFlyout === 'Assistants'}
             >
               Assistants
             </NavItem>
