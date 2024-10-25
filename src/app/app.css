@@ -21,7 +21,7 @@ pf-v6-c-page__main-container.pf-m-fill {
 
 .assistant-selector-menu {
   max-width: 60vw;
-  max-height: 300px;
+  max-height: 19rem;
   overflow-y: auto;
   --pf-v6-c-menu--PaddingBlockStart: 0;
 

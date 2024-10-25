@@ -62,16 +62,7 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
         <Nav id="nav-primary-simple" className="pf-c-nav" aria-label="Global">
           <NavList>
             <NavItem onClick={() => setVisibleFlyout(null)}>
-              <NavLink
-                to="/"
-                className={({ isActive, isPending, isTransitioning }) =>
-                  [isPending ? 'pending' : '', isActive ? 'active' : '', isTransitioning ? 'transitioning' : ''].join(
-                    ' ',
-                  )
-                }
-              >
-                Home
-              </NavLink>
+              <NavLink to="/">Home</NavLink>
             </NavItem>
             <NavItem
               component="button"
