@@ -5,6 +5,7 @@ import logoDark from '@app/bgimages/Logo-Red_Hat-Composer_AI_Studio-A-Reverse.sv
 import { FlyoutHeader } from '@app/FlyoutHeader.tsx/FlyoutHeader';
 import { FlyoutStartScreen } from '@app/FlyoutStartScreen.tsx/FlyoutStartScreen';
 import { FlyoutMenu } from './FlyoutMenu';
+import { NavLink } from 'react-router-dom';
 
 export const SidebarWithFlyout: React.FunctionComponent = () => {
   const [visibleFlyout, setVisibleFlyout] = useState(null);
@@ -66,7 +67,18 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
 
         <Nav id="nav-primary-simple" className="pf-c-nav" aria-label="Global">
           <NavList>
-            <NavItem to="/">Home</NavItem>
+            <NavItem onClick={() => setVisibleFlyout(null)}>
+              <NavLink
+                to="/"
+                className={({ isActive, isPending, isTransitioning }) =>
+                  [isPending ? 'pending' : '', isActive ? 'active' : '', isTransitioning ? 'transitioning' : ''].join(
+                    ' ',
+                  )
+                }
+              >
+                Home
+              </NavLink>
+            </NavItem>
             <NavItem
               component="button"
               onClick={toggleFlyout}
