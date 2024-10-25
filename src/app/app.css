@@ -21,8 +21,21 @@ pf-v6-c-page__main-container.pf-m-fill {
 
 .assistant-selector-menu {
   max-width: 60vw;
-  max-height: 80vh;
+  max-height: 300px;
   overflow-y: auto;
+  --pf-v6-c-menu--PaddingBlockStart: 0;
+
+  .pf-v6-c-menu__content {
+    position: relative;
+  }
+
+  .pf-v6-c-menu__search {
+    padding-block-start: var(--pf-t--global--spacer--sm);
+    position: sticky;
+    top: 0;
+    background-color: var(--pf-t--global--background--color--floating--default);
+    z-index: var(--pf-t--global--z-index--md);
+  }
 }
 
 .compare {
