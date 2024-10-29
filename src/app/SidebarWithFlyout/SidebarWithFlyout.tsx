@@ -64,7 +64,7 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
             <NavItem onClick={() => setVisibleFlyout(null)}>
               <NavLink to="/">Home</NavLink>
             </NavItem>
-            <NavItem
+            {/*<NavItem
               component="button"
               onClick={toggleFlyout}
               aria-haspopup="dialog"
@@ -79,7 +79,7 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
               aria-expanded={visibleFlyout === 'Assistants'}
             >
               Assistants
-            </NavItem>
+            </NavItem>*/}
           </NavList>
         </Nav>
         {/* Flyout menu */}
