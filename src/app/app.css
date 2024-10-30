@@ -18,3 +18,25 @@ pf-v6-c-page__main-container.pf-m-fill {
   max-height: 80vh;
   overflow-y: auto;
 }
+
+.compare {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+
+  .compare-item:first-of-type {
+    border-right: 1px solid rebeccapurple;
+  }
+
+  .compare-item {
+    flex: 1;
+
+    .pf-chatbot__content {
+      padding: 0;
+    }
+    .pf-chatbot__footer {
+      padding: var(--pf-t--global--spacer--sm) 0;
+    }
+  }
+}

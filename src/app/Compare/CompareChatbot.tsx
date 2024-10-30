@@ -4,17 +4,13 @@ import {
   ChatbotAlert,
   ChatbotContent,
   ChatbotDisplayMode,
-  ChatbotFooter,
-  ChatbotFootnote,
   ChatbotHeader,
   ChatbotHeaderMain,
   ChatbotWelcomePrompt,
   Message,
-  MessageBar,
   MessageBox,
   MessageProps,
 } from '@patternfly/virtual-assistant';
-import { useLoaderData } from 'react-router-dom';
 import { CannedChatbot } from '../types/CannedChatbot';
 import { HeaderDropdown } from '@app/HeaderDropdown/HeaderDropdown';
 import { ERROR_TITLE, getId } from '@app/utils/utils';
@@ -22,29 +18,66 @@ interface Source {
   link: string;
 }
 
-const BaseChatbot: React.FunctionComponent = () => {
-  const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
+interface CompareChatbotProps {
+  chatbot: CannedChatbot;
+  allChatbots: CannedChatbot[];
+  setIsSendButtonDisabled: (bool: boolean) => void;
+  controller?: AbortController;
+  setController: (controller: AbortController | undefined) => void;
+  input?: string;
+  setChatbot: (value: CannedChatbot) => void;
+}
+
+const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
+  chatbot,
+  allChatbots,
+  setIsSendButtonDisabled,
+  controller,
+  setController,
+  input,
+  setChatbot,
+}: CompareChatbotProps) => {
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
   const [currentSources, setCurrentSources] = React.useState<Source[]>();
-  const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(false);
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
   const [error, setError] = React.useState<{ title: string; body: string }>();
   const [announcement, setAnnouncement] = React.useState<string>();
-  const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(chatbots[0]);
-  const [controller, setController] = React.useState<AbortController>();
+  const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(chatbot);
+
+  const handleSend = async (input: string) => {
+    setIsSendButtonDisabled(true);
+    const newMessages = structuredClone(messages);
+    if (currentMessage.length > 0) {
+      newMessages.push({
+        id: getId(),
+        name: currentChatbot?.displayName,
+        role: 'bot',
+        content: currentMessage.join(''),
+        ...(currentSources && { sources: { sources: currentSources } }),
+      });
+      setCurrentMessage([]);
+      setCurrentSources(undefined);
+    }
+    newMessages.push({ id: getId(), name: 'You', role: 'user', content: input });
+    setMessages(newMessages);
+    // make announcement to assistive devices that new messages have been added
+    setAnnouncement(`Message from You: ${input}. Message from Chatbot is loading.`);
+
+    const sources = await fetchData(input);
+    if (sources) {
+      setCurrentSources(sources);
+    }
+    // make announcement to assistive devices that new message has been added
+    currentMessage.length > 0 && setAnnouncement(`Message from Chatbot: ${currentMessage.join('')}`);
+    setIsSendButtonDisabled(false);
+  };
 
   React.useEffect(() => {
-    document.title = `Red Hat Composer AI Studio | ${currentChatbot?.name}`;
-  }, []);
-
-  React.useEffect(() => {
-    document.title = `Red Hat Composer AI Studio | ${currentChatbot?.name}`;
-  }, [currentChatbot]);
-
-  React.useEffect(() => {
-    document.title = `Red Hat Composer AI Studio | ${currentChatbot?.name}${announcement ? ` - ${announcement}` : ''}`;
-  }, [announcement]);
+    if (input) {
+      handleSend(input);
+    }
+  }, [input]); // fixme if input doesn't change it fails silently
 
   // Auto-scrolls to the latest message
   React.useEffect(() => {
@@ -150,34 +183,6 @@ const BaseChatbot: React.FunctionComponent = () => {
     }
   }
 
-  const handleSend = async (input: string) => {
-    setIsSendButtonDisabled(true);
-    const newMessages = structuredClone(messages);
-    if (currentMessage.length > 0) {
-      newMessages.push({
-        id: getId(),
-        name: currentChatbot?.displayName,
-        role: 'bot',
-        content: currentMessage.join(''),
-        ...(currentSources && { sources: { sources: currentSources } }),
-      });
-      setCurrentMessage([]);
-      setCurrentSources(undefined);
-    }
-    newMessages.push({ id: getId(), name: 'You', role: 'user', content: input });
-    setMessages(newMessages);
-    // make announcement to assistive devices that new messages have been added
-    setAnnouncement(`Message from You: ${input}. Message from Chatbot is loading.`);
-
-    const sources = await fetchData(input);
-    if (sources) {
-      setCurrentSources(sources);
-    }
-    // make announcement to assistive devices that new message has been added
-    currentMessage.length > 0 && setAnnouncement(`Message from Chatbot: ${currentMessage.join('')}`);
-    setIsSendButtonDisabled(false);
-  };
-
   const displayMode = ChatbotDisplayMode.embedded;
 
   const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: CannedChatbot) => {
@@ -192,17 +197,18 @@ const BaseChatbot: React.FunctionComponent = () => {
     setError(undefined);
     setAnnouncement(undefined);
     setIsSendButtonDisabled(false);
+    setChatbot(value);
   };
 
   return (
     <Chatbot displayMode={displayMode}>
       <ChatbotHeader>
         <ChatbotHeaderMain>
-          <HeaderDropdown selectedChatbot={currentChatbot} chatbots={chatbots} onSelect={onSelect} />
+          <HeaderDropdown selectedChatbot={chatbot} chatbots={allChatbots} onSelect={onSelect} />
         </ChatbotHeaderMain>
       </ChatbotHeader>
       <ChatbotContent>
-        <MessageBox announcement={announcement}>
+        <MessageBox ariaLabel={`Scrollable message log for ${chatbot.displayName}`} announcement={announcement}>
           {error && (
             <ChatbotAlert
               variant="danger"
@@ -231,17 +237,8 @@ const BaseChatbot: React.FunctionComponent = () => {
           <div ref={scrollToBottomRef}></div>
         </MessageBox>
       </ChatbotContent>
-      <ChatbotFooter>
-        <MessageBar
-          onSendMessage={handleSend}
-          hasMicrophoneButton
-          hasAttachButton={false}
-          isSendButtonDisabled={isSendButtonDisabled}
-        />
-        <ChatbotFootnote label="Verify all information from this tool. LLMs make mistakes." />
-      </ChatbotFooter>
     </Chatbot>
   );
 };
 
-export { BaseChatbot };
+export { CompareChatbot };

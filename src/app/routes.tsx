@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { NotFound } from '@app/NotFound/NotFound';
-import { BaseChatbot, loader as chatbotLoader } from './BaseChatbot/BaseChatbot';
-import { AppLayout } from './AppLayout/AppLayout';
-import { Home } from './Home/Home';
+import { BaseChatbot } from '@app/BaseChatbot/BaseChatbot';
+import { AppLayout } from '@app/AppLayout/AppLayout';
+import { Home } from '@app/Home/Home';
+import { Compare } from '@app/Compare/Compare';
+import { chatbotLoader } from '@app/utils/utils';
 
 export interface IAppRoute {
   label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
@@ -36,8 +38,14 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: 'Chats',
+        path: 'chats',
         element: <BaseChatbot />,
+        loader: chatbotLoader,
+        errorElement: <NotFound />,
+      },
+      {
+        path: 'compare',
+        element: <Compare />,
         loader: chatbotLoader,
         errorElement: <NotFound />,
       },
