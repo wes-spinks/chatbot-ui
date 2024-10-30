@@ -23,10 +23,13 @@ pf-v6-c-page__main-container.pf-m-fill {
   display: flex;
   height: 100%;
   width: 100%;
-  overflow: hidden;
 
   .compare-item:first-of-type {
     border-right: 1px solid rebeccapurple;
+
+    @media screen and (max-width: 900px) {
+      border-right: 0px;
+    }
   }
 
   .compare-item {
@@ -39,4 +42,36 @@ pf-v6-c-page__main-container.pf-m-fill {
       padding: var(--pf-t--global--spacer--sm) 0;
     }
   }
+}
+
+.compare-mobile-controls {
+  padding: var(--pf-t--global--spacer--md);
+  display: none;
+
+  @media screen and (max-width: 900px) {
+    display: block;
+  }
+}
+
+.compare-item {
+  .pf-chatbot.pf-chatbot--embedded {
+    @media screen and (max-width: 900px) {
+      min-height: unset;
+      height: 100%;
+    }
+  }
+}
+.compare-item-hidden {
+  display: block;
+
+  @media screen and (max-width: 900px) {
+    display: none;
+  }
+}
+
+.compare-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
 }

@@ -26,6 +26,7 @@ export const HeaderDropdown: React.FunctionComponent<HeaderDropdownProps> = ({
 
   const onToggleClick = () => {
     setIsOpen(!isOpen);
+    setVisibleAssistants(chatbots);
   };
 
   const findMatchingElements = (chatbots: CannedChatbot[], targetValue: string) => {
@@ -45,8 +46,10 @@ export const HeaderDropdown: React.FunctionComponent<HeaderDropdownProps> = ({
   };
 
   const handleSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: CannedChatbot) => {
-    setIsOpen(false);
-    onSelect(_event, value);
+    // don't do a select if they choose "no results found"
+    if (value) {
+      onSelect(_event, value);
+    }
   };
 
   return (

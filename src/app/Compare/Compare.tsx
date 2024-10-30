@@ -1,5 +1,7 @@
 import { CompareChatbot } from '@app/Compare/CompareChatbot';
 import { CannedChatbot } from '@app/types/CannedChatbot';
+import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
+import { css } from '@patternfly/react-styles';
 import { ChatbotFooter, ChatbotFootnote, MessageBar } from '@patternfly/virtual-assistant';
 import * as React from 'react';
 import { useLoaderData, useSearchParams } from 'react-router-dom';
@@ -11,8 +13,18 @@ export const Compare: React.FunctionComponent = () => {
   const [controller, setController] = React.useState<AbortController>();
   const [firstChatbot, setFirstChatbot] = React.useState<CannedChatbot>();
   const [secondChatbot, setSecondChatbot] = React.useState<CannedChatbot>();
+  const [isSelected, setIsSelected] = React.useState('toggle-group-assistant-1');
+  const [showFirstChatbot, setShowFirstChatbot] = React.useState(true);
+  const [showSecondChatbot, setShowSecondChatbot] = React.useState(false);
   const [searchParams] = useSearchParams();
   const assistants = searchParams.get('assistants')?.split(',');
+
+  const handleToggleClick = (event) => {
+    const id = event.currentTarget.id;
+    setIsSelected(id);
+    setShowSecondChatbot(!showSecondChatbot);
+    setShowFirstChatbot(!showFirstChatbot);
+  };
 
   const handleSend = (value: string) => {
     setInput(value);
@@ -33,14 +45,46 @@ export const Compare: React.FunctionComponent = () => {
     } else {
       throw new Error('Not enough assistants');
     }
+
+    const updateChatbotVisibility = () => {
+      if (window.innerWidth >= 901) {
+        setShowFirstChatbot(true);
+        setShowSecondChatbot(true);
+      } else {
+        setShowFirstChatbot(true);
+        setShowSecondChatbot(false);
+        setIsSelected('toggle-group-assistant-1');
+      }
+    };
+    window.addEventListener('resize', updateChatbotVisibility);
+
+    return () => {
+      window.removeEventListener('resize', updateChatbotVisibility);
+    };
   }, []);
 
   return (
     firstChatbot &&
     secondChatbot && (
-      <>
+      <div className="compare-container">
+        <div className="compare-mobile-controls">
+          <ToggleGroup aria-label="Select which assistant to display">
+            <ToggleGroupItem
+              text="Assistant 1"
+              buttonId="toggle-group-assistant-1"
+              isSelected={isSelected === 'toggle-group-assistant-1'}
+              onChange={handleToggleClick}
+            />
+            <ToggleGroupItem
+              text="Assistant 2"
+              buttonId="toggle-group-assistant-2"
+              isSelected={isSelected === 'toggle-group-assistant-2'}
+              onChange={handleToggleClick}
+            />
+          </ToggleGroup>
+        </div>
         <div className="compare">
-          <div className="compare-item">
+          <div className={css('compare-item', !showFirstChatbot ? 'compare-item-hidden' : undefined)}>
             <CompareChatbot
               chatbot={firstChatbot}
               allChatbots={chatbots}
@@ -51,7 +95,7 @@ export const Compare: React.FunctionComponent = () => {
               setChatbot={setFirstChatbot}
             />
           </div>
-          <div className="compare-item">
+          <div className={css('compare-item', !showSecondChatbot ? 'compare-item-hidden' : undefined)}>
             <CompareChatbot
               chatbot={secondChatbot}
               allChatbots={chatbots}
@@ -72,7 +116,7 @@ export const Compare: React.FunctionComponent = () => {
           />
           <ChatbotFootnote label="Verify all information from this tool. LLMs make mistakes." />
         </ChatbotFooter>
-      </>
+      </div>
     )
   );
 };
