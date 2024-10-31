@@ -70,12 +70,14 @@ export const Compare: React.FunctionComponent = () => {
         <div className="compare-mobile-controls">
           <ToggleGroup aria-label="Select which assistant to display">
             <ToggleGroupItem
+              className="compare-toggle"
               text="Assistant 1"
               buttonId="toggle-group-assistant-1"
               isSelected={isSelected === 'toggle-group-assistant-1'}
               onChange={handleToggleClick}
             />
             <ToggleGroupItem
+              className="compare-toggle"
               text="Assistant 2"
               buttonId="toggle-group-assistant-2"
               isSelected={isSelected === 'toggle-group-assistant-2'}

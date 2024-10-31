@@ -48,6 +48,7 @@ export const HeaderDropdown: React.FunctionComponent<HeaderDropdownProps> = ({
   const handleSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: CannedChatbot) => {
     // don't do a select if they choose "no results found"
     if (value) {
+      setIsOpen(false);
       onSelect(_event, value);
     }
   };

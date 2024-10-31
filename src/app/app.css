@@ -25,7 +25,7 @@ pf-v6-c-page__main-container.pf-m-fill {
   width: 100%;
 
   .compare-item:first-of-type {
-    border-right: 1px solid rebeccapurple;
+    border-right: 1px solid var(--pf-t--global--border--color--default);
 
     @media screen and (max-width: 900px) {
       border-right: 0px;
@@ -45,8 +45,9 @@ pf-v6-c-page__main-container.pf-m-fill {
 }
 
 .compare-mobile-controls {
-  padding: var(--pf-t--global--spacer--md);
+  padding: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--lg) 0 var(--pf-t--global--spacer--lg);
   display: none;
+  background-color: var(--pf-t--global--background--color--secondary--default);
 
   @media screen and (max-width: 900px) {
     display: block;
@@ -56,7 +57,6 @@ pf-v6-c-page__main-container.pf-m-fill {
 .compare-item {
   .pf-chatbot.pf-chatbot--embedded {
     @media screen and (max-width: 900px) {
-      min-height: unset;
       height: 100%;
     }
   }
@@ -73,5 +73,29 @@ pf-v6-c-page__main-container.pf-m-fill {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-y: auto;
+}
+
+.compare-toggle {
+  width: 100%;
+
+  .pf-v6-c-toggle-group__button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.chatbot-ui-page {
+  @media screen and (max-width: 900px) {
+    --pf-v6-c-page__main-container--MaxHeight: 100%;
+  }
+  .pf-v6-c-page__main-container {
+    @media screen and (max-width: 900px) {
+      --pf-v6-c-page__main-container--MarginInlineStart: 0;
+      --pf-v6-c-page__main-container--MarginInlineEnd: 0;
+      --pf-v6-c-page__main-container--BorderWidth: 0;
+      --pf-v6-c-page__main-container--BorderColor: initial;
+      --pf-v6-c-page__main-container--BorderRadius: none;
+    }
+  }
 }
