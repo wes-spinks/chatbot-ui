@@ -4,7 +4,7 @@ import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { css } from '@patternfly/react-styles';
 import { ChatbotFooter, ChatbotFootnote, MessageBar } from '@patternfly/virtual-assistant';
 import * as React from 'react';
-import { useLoaderData, useSearchParams } from 'react-router-dom';
+import { useLoaderData, useNavigate, useSearchParams } from 'react-router-dom';
 
 export const Compare: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
@@ -18,6 +18,7 @@ export const Compare: React.FunctionComponent = () => {
   const [showSecondChatbot, setShowSecondChatbot] = React.useState(false);
   const [searchParams] = useSearchParams();
   const assistants = searchParams.get('assistants')?.split(',');
+  const navigate = useNavigate();
 
   const handleToggleClick = (event) => {
     const id = event.currentTarget.id;
@@ -40,10 +41,12 @@ export const Compare: React.FunctionComponent = () => {
         setFirstChatbot(actualChatbots[0]);
         setSecondChatbot(actualChatbots[1]);
       } else {
-        throw new Error('Not real assistants');
+        // assistants are not real
+        navigate('/');
       }
     } else {
-      throw new Error('Not enough assistants');
+      // not enough assistants, or duplicate assistants
+      navigate('/');
     }
 
     const updateChatbotVisibility = () => {
