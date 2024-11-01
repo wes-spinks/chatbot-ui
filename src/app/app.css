@@ -4,6 +4,12 @@ body,
   height: 100%;
 }
 
+@media screen and (min-width: 64rem) {
+  .pf-chatbot--embedded .pf-chatbot__messagebox {
+    width: 100%;
+  }
+}
+
 .pf-v6-c-page__main,
 pf-v6-c-page__main-container.pf-m-fill {
   overflow-y: hidden;
@@ -38,6 +44,10 @@ pf-v6-c-page__main-container.pf-m-fill {
 
   .compare-item {
     flex: 1;
+
+    .pf-chatbot--embedded .pf-chatbot__messagebox {
+      width: 100%;
+    }
 
     .pf-chatbot__content {
       padding: 0;
@@ -105,6 +115,9 @@ pf-v6-c-page__main-container.pf-m-fill {
     --pf-v6-c-page__main-container--MaxHeight: 100%;
   }
   .pf-v6-c-page__main-container {
+    @media screen and (min-width: 1024px) {
+      border-top: 0px;
+    }
     @media screen and (max-width: 900px) {
       --pf-v6-c-page__main-container--MarginInlineStart: 0;
       --pf-v6-c-page__main-container--MarginInlineEnd: 0;

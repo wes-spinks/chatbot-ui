@@ -10,7 +10,7 @@
     "prebuild": "npm run type-check && npm run clean",
     "dr:surge": "node dr-surge.js",
     "build": "webpack --config webpack.prod.js && npm run dr:surge",
-    "start": "sirv dist --cors --single --host --port 3000", 
+    "start": "sirv dist --cors --single --host --port 3000",
     "start:dev": "webpack serve --color --progress --config webpack.dev.js",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -72,10 +72,10 @@
     "webpack-merge": "^5.10.0"
   },
   "dependencies": {
-    "@patternfly/react-core": "^6.0.0-prerelease.21",
-    "@patternfly/react-icons": "^6.0.0-prerelease.7",
-    "@patternfly/react-styles": "^6.0.0-prerelease.6",
-    "@patternfly/virtual-assistant": "^2.0.0-alpha.61",
+    "@patternfly/react-core": "^6.0.0",
+    "@patternfly/react-icons": "^6.0.0",
+    "@patternfly/react-styles": "^6.0.0",
+    "@patternfly/virtual-assistant": "^2.1.0-prerelease.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sirv-cli": "^2.0.2"

@@ -25,7 +25,10 @@ interface CompareChatbotProps {
   controller?: AbortController;
   setController: (controller: AbortController | undefined) => void;
   input?: string;
+  hasNewInput: boolean;
   setChatbot: (value: CannedChatbot) => void;
+  setSearchParams: (_event, value: string, order: string) => void;
+  order: string;
 }
 
 const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
@@ -35,7 +38,10 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
   controller,
   setController,
   input,
+  hasNewInput,
   setChatbot,
+  setSearchParams,
+  order,
 }: CompareChatbotProps) => {
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
@@ -77,7 +83,7 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
     if (input) {
       handleSend(input);
     }
-  }, [input]); // fixme if input doesn't change it fails silently
+  }, [hasNewInput]);
 
   // Auto-scrolls to the latest message
   React.useEffect(() => {
@@ -198,6 +204,7 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
     setAnnouncement(undefined);
     setIsSendButtonDisabled(false);
     setChatbot(value);
+    setSearchParams(_event, value.name, order);
   };
 
   return (

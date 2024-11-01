@@ -10,13 +10,15 @@ export const Compare: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
   const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(false);
   const [input, setInput] = React.useState<string>();
-  const [controller, setController] = React.useState<AbortController>();
+  const [hasNewInput, setHasNewInput] = React.useState(false);
+  const [firstController, setFirstController] = React.useState<AbortController>();
+  const [secondController, setSecondController] = React.useState<AbortController>();
   const [firstChatbot, setFirstChatbot] = React.useState<CannedChatbot>();
   const [secondChatbot, setSecondChatbot] = React.useState<CannedChatbot>();
   const [isSelected, setIsSelected] = React.useState('toggle-group-assistant-1');
   const [showFirstChatbot, setShowFirstChatbot] = React.useState(true);
   const [showSecondChatbot, setShowSecondChatbot] = React.useState(false);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const assistants = searchParams.get('assistants')?.split(',');
   const navigate = useNavigate();
 
@@ -29,6 +31,7 @@ export const Compare: React.FunctionComponent = () => {
 
   const handleSend = (value: string) => {
     setInput(value);
+    setHasNewInput(!hasNewInput);
   };
 
   React.useEffect(() => {
@@ -66,6 +69,15 @@ export const Compare: React.FunctionComponent = () => {
     };
   }, []);
 
+  const changeSearchParams = (_event, value: string, order: string) => {
+    if (order === 'first' && secondChatbot) {
+      setSearchParams(`assistants=${value},${secondChatbot.name}`);
+    }
+    if (order === 'second' && firstChatbot) {
+      setSearchParams(`assistants=${firstChatbot.name},${value}`);
+    }
+  };
+
   return (
     firstChatbot &&
     secondChatbot && (
@@ -93,22 +105,28 @@ export const Compare: React.FunctionComponent = () => {
             <CompareChatbot
               chatbot={firstChatbot}
               allChatbots={chatbots}
-              controller={controller}
-              setController={setController}
+              controller={firstController}
+              setController={setFirstController}
               setIsSendButtonDisabled={setIsSendButtonDisabled}
               input={input}
               setChatbot={setFirstChatbot}
+              hasNewInput={hasNewInput}
+              setSearchParams={changeSearchParams}
+              order="first"
             />
           </div>
           <div className={css('compare-item', !showSecondChatbot ? 'compare-item-hidden' : undefined)}>
             <CompareChatbot
               chatbot={secondChatbot}
               allChatbots={chatbots}
-              controller={controller}
-              setController={setController}
+              controller={secondController}
+              setController={setSecondController}
               setIsSendButtonDisabled={setIsSendButtonDisabled}
               input={input}
               setChatbot={setSecondChatbot}
+              hasNewInput={hasNewInput}
+              setSearchParams={changeSearchParams}
+              order="second"
             />
           </div>
         </div>
