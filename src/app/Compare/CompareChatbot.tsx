@@ -202,7 +202,7 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
 
   return (
     <Chatbot displayMode={displayMode}>
-      <ChatbotHeader>
+      <ChatbotHeader className="compare-header">
         <ChatbotHeaderMain>
           <HeaderDropdown selectedChatbot={chatbot} chatbots={allChatbots} onSelect={onSelect} />
         </ChatbotHeaderMain>
