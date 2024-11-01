@@ -18,6 +18,7 @@ import { useLoaderData } from 'react-router-dom';
 import { CannedChatbot } from '../types/CannedChatbot';
 import { HeaderDropdown } from '@app/HeaderDropdown/HeaderDropdown';
 import { ERROR_TITLE, getId } from '@app/utils/utils';
+import { Button } from '@patternfly/react-core';
 interface Source {
   link: string;
 }
@@ -200,6 +201,11 @@ const BaseChatbot: React.FunctionComponent = () => {
         <ChatbotHeaderMain>
           <HeaderDropdown selectedChatbot={currentChatbot} chatbots={chatbots} onSelect={onSelect} />
         </ChatbotHeaderMain>
+        {chatbots.length >= 2 && (
+          <Button component="a" href={`/compare?assistants=${chatbots[0].name},${chatbots[1].name}`}>
+            Compare
+          </Button>
+        )}
       </ChatbotHeader>
       <ChatbotContent>
         <MessageBox announcement={announcement}>
