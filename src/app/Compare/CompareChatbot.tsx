@@ -50,9 +50,11 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
   const [error, setError] = React.useState<{ title: string; body: string }>();
   const [announcement, setAnnouncement] = React.useState<string>();
   const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(chatbot);
+  const [currentDate, setCurrentDate] = React.useState<Date>();
 
   const handleSend = async (input: string) => {
     setIsSendButtonDisabled(true);
+    const date = new Date();
     const newMessages = structuredClone(messages);
     if (currentMessage.length > 0) {
       newMessages.push({
@@ -61,12 +63,22 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
         role: 'bot',
         content: currentMessage.join(''),
         ...(currentSources && { sources: { sources: currentSources } }),
+        timestamp: currentDate
+          ? `${currentDate.toLocaleDateString()} ${currentDate.toLocaleTimeString()}`
+          : `${date?.toLocaleDateString()} ${date?.toLocaleTimeString()}`,
       });
       setCurrentMessage([]);
       setCurrentSources(undefined);
     }
-    newMessages.push({ id: getId(), name: 'You', role: 'user', content: input });
+    newMessages.push({
+      id: getId(),
+      name: 'You',
+      role: 'user',
+      content: input,
+      timestamp: `${date?.toLocaleDateString()} ${date?.toLocaleTimeString()}`,
+    });
     setMessages(newMessages);
+    setCurrentDate(date);
     // make announcement to assistive devices that new messages have been added
     setAnnouncement(`Message from You: ${input}. Message from Chatbot is loading.`);
 
@@ -102,7 +114,14 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
   };
 
   const handleError = (e) => {
-    const newError = { title: ERROR_TITLE[e], body: ERROR_BODY[e] };
+    const title = ERROR_TITLE;
+    const body = ERROR_BODY;
+    let newError;
+    if (title && body) {
+      newError = { title: ERROR_TITLE[e], body: ERROR_BODY[e] };
+    } else {
+      newError = { title: 'Error', body: e.message };
+    }
     setError(newError);
     // make announcement to assistive devices that there was an error
     setAnnouncement(`Error: ${newError.title} ${newError.body}`);
@@ -239,6 +258,7 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
               role="bot"
               content={currentMessage.join('')}
               {...(currentSources && { sources: { sources: currentSources } })}
+              timestamp={`${currentDate?.toLocaleDateString()} ${currentDate?.toLocaleTimeString()}`}
             />
           )}
           <div ref={scrollToBottomRef}></div>
