@@ -26,7 +26,7 @@ const AppLayout: React.FunctionComponent = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
   const masthead = (
-    <Masthead>
+    <Masthead display={{ default: 'inline' }}>
       <MastheadMain>
         <MastheadToggle>
           <Button
@@ -110,6 +110,7 @@ const AppLayout: React.FunctionComponent = () => {
 
   return (
     <Page
+      className="chatbot-ui-page"
       mainContainerId={pageId}
       masthead={masthead}
       sidebar={sidebarOpen && Sidebar}

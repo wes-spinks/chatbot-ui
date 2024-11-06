@@ -4,6 +4,12 @@ body,
   height: 100%;
 }
 
+@media screen and (min-width: 64rem) {
+  .pf-chatbot--embedded .pf-chatbot__messagebox {
+    width: 100%;
+  }
+}
+
 .pf-v6-c-page__main,
 pf-v6-c-page__main-container.pf-m-fill {
   overflow-y: hidden;
@@ -17,4 +23,107 @@ pf-v6-c-page__main-container.pf-m-fill {
   max-width: 60vw;
   max-height: 80vh;
   overflow-y: auto;
+}
+
+.compare {
+  display: flex;
+  height: 100%;
+  width: 100%;
+
+  @media screen and (max-width: 900px) {
+    overflow-y: auto;
+  }
+
+  .compare-item:first-of-type {
+    border-right: 1px solid var(--pf-t--global--border--color--default);
+
+    @media screen and (max-width: 900px) {
+      border-right: 0px;
+    }
+  }
+
+  .compare-item {
+    flex: 1;
+
+    .pf-chatbot--embedded .pf-chatbot__messagebox {
+      width: 100%;
+    }
+
+    .pf-chatbot__content {
+      padding: 0;
+    }
+  }
+}
+
+.compare-mobile-controls {
+  padding: var(--pf-t--global--spacer--md) var(--pf-t--global--spacer--lg) 0 var(--pf-t--global--spacer--lg);
+  display: none;
+  background-color: var(--pf-t--global--background--color--secondary--default);
+  position: sticky;
+  top: 0;
+  z-index: 9999; /*fixme*/
+
+  @media screen and (max-width: 900px) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pf-t--global--spacer--md);
+  }
+}
+
+.compare-item {
+  .pf-chatbot.pf-chatbot--embedded {
+    @media screen and (max-width: 900px) {
+      height: 100%;
+    }
+  }
+}
+.compare-item-hidden {
+  display: block;
+
+  @media screen and (max-width: 900px) {
+    display: none;
+  }
+}
+
+.compare-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+
+  .pf-chatbot__footer {
+    position: sticky;
+    bottom: 0;
+  }
+}
+
+.compare-toggle {
+  width: 100%;
+
+  .pf-v6-c-toggle-group__button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.chatbot-ui-page {
+  .pf-v6-c-page__main {
+    overflow: hidden;
+  }
+  @media screen and (max-width: 900px) {
+    --pf-v6-c-page__main-container--MaxHeight: 100%;
+  }
+  .pf-v6-c-page__main-container {
+    @media screen and (min-width: 1024px) {
+      border-top: 0px;
+    }
+    @media screen and (max-width: 900px) {
+      --pf-v6-c-page__main-container--MarginInlineStart: 0;
+      --pf-v6-c-page__main-container--MarginInlineEnd: 0;
+      --pf-v6-c-page__main-container--BorderWidth: 0;
+      --pf-v6-c-page__main-container--BorderColor: initial;
+      --pf-v6-c-page__main-container--BorderRadius: none;
+    }
+  }
 }
