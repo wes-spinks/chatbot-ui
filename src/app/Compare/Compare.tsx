@@ -18,6 +18,7 @@ export const Compare: React.FunctionComponent = () => {
   const [isSelected, setIsSelected] = React.useState('toggle-group-assistant-1');
   const [showFirstChatbot, setShowFirstChatbot] = React.useState(true);
   const [showSecondChatbot, setShowSecondChatbot] = React.useState(false);
+  const [hasStopButton, setHasStopButton] = React.useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const assistants = searchParams.get('assistants')?.split(',');
   const navigate = useNavigate();
@@ -78,6 +79,16 @@ export const Compare: React.FunctionComponent = () => {
     }
   };
 
+  const handleStopButton = () => {
+    if (firstController) {
+      firstController.abort();
+    }
+    if (secondController) {
+      secondController.abort();
+    }
+    setHasStopButton(false);
+  };
+
   return (
     firstChatbot &&
     secondChatbot && (
@@ -113,6 +124,7 @@ export const Compare: React.FunctionComponent = () => {
               hasNewInput={hasNewInput}
               setSearchParams={changeSearchParams}
               order="first"
+              setShowStopButton={setHasStopButton}
             />
           </div>
           <div className={css('compare-item', !showSecondChatbot ? 'compare-item-hidden' : undefined)}>
@@ -127,6 +139,7 @@ export const Compare: React.FunctionComponent = () => {
               hasNewInput={hasNewInput}
               setSearchParams={changeSearchParams}
               order="second"
+              setShowStopButton={setHasStopButton}
             />
           </div>
         </div>
@@ -136,6 +149,8 @@ export const Compare: React.FunctionComponent = () => {
             hasMicrophoneButton
             hasAttachButton={false}
             isSendButtonDisabled={isSendButtonDisabled}
+            hasStopButton={hasStopButton}
+            handleStopButton={handleStopButton}
           />
           <ChatbotFootnote label="Verify all information from this tool. LLMs make mistakes." />
         </ChatbotFooter>

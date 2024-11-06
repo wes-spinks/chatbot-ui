@@ -29,6 +29,7 @@ interface CompareChatbotProps {
   setChatbot: (value: CannedChatbot) => void;
   setSearchParams: (_event, value: string, order: string) => void;
   order: string;
+  setShowStopButton: (bool: bolean) => void;
 }
 
 const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
@@ -42,6 +43,7 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
   setChatbot,
   setSearchParams,
   order,
+  setShowStopButton,
 }: CompareChatbotProps) => {
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
@@ -89,6 +91,7 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
     // make announcement to assistive devices that new message has been added
     currentMessage.length > 0 && setAnnouncement(`Message from Chatbot: ${currentMessage.join('')}`);
     setIsSendButtonDisabled(false);
+    setShowStopButton(false);
   };
 
   React.useEffect(() => {
@@ -131,10 +134,12 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
   async function fetchData(userMessage: string) {
     if (controller) {
       controller.abort();
+      setShowStopButton(false);
     }
 
     const newController = new AbortController();
     setController(newController);
+    setShowStopButton(true);
 
     try {
       let isSource = false;
@@ -213,6 +218,7 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
   const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: CannedChatbot) => {
     if (controller) {
       controller.abort();
+      setShowStopButton(false);
     }
     setController(undefined);
     setCurrentChatbot(value);

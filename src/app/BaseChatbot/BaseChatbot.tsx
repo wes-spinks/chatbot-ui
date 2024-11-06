@@ -35,6 +35,7 @@ const BaseChatbot: React.FunctionComponent = () => {
   const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(chatbots[0]);
   const [controller, setController] = React.useState<AbortController>();
   const [currentDate, setCurrentDate] = React.useState<Date>();
+  const [hasStopButton, setHasStopButton] = React.useState(false);
 
   React.useEffect(() => {
     document.title = `Red Hat Composer AI Studio | ${currentChatbot?.name}`;
@@ -84,11 +85,12 @@ const BaseChatbot: React.FunctionComponent = () => {
   async function fetchData(userMessage: string) {
     if (controller) {
       controller.abort();
+      setHasStopButton(false);
     }
 
     const newController = new AbortController();
     setController(newController);
-
+    setHasStopButton(true);
     try {
       let isSource = false;
 
@@ -199,6 +201,7 @@ const BaseChatbot: React.FunctionComponent = () => {
     // make announcement to assistive devices that new message has been added
     currentMessage.length > 0 && setAnnouncement(`Message from Chatbot: ${currentMessage.join('')}`);
     setIsSendButtonDisabled(false);
+    setHasStopButton(false);
   };
 
   const displayMode = ChatbotDisplayMode.embedded;
@@ -206,6 +209,7 @@ const BaseChatbot: React.FunctionComponent = () => {
   const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: CannedChatbot) => {
     if (controller) {
       controller.abort();
+      setHasStopButton(false);
     }
     setController(undefined);
     setCurrentChatbot(value);
@@ -215,6 +219,13 @@ const BaseChatbot: React.FunctionComponent = () => {
     setError(undefined);
     setAnnouncement(undefined);
     setIsSendButtonDisabled(false);
+  };
+
+  const handleStopButton = () => {
+    if (controller) {
+      controller.abort();
+    }
+    setHasStopButton(false);
   };
 
   return (
@@ -266,6 +277,8 @@ const BaseChatbot: React.FunctionComponent = () => {
           hasMicrophoneButton
           hasAttachButton={false}
           isSendButtonDisabled={isSendButtonDisabled}
+          hasStopButton={hasStopButton}
+          handleStopButton={handleStopButton}
         />
         <ChatbotFootnote label="Verify all information from this tool. LLMs make mistakes." />
       </ChatbotFooter>
