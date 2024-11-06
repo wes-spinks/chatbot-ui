@@ -71,12 +71,18 @@ export const CompareLayout: React.FunctionComponent = () => {
 
   React.useEffect(() => {
     if (status) {
-      if (status.child1.isMessageStreaming || status.child2.isMessageStreaming) {
+      const childIsStreaming = status.child1.isMessageStreaming || status.child2.isMessageStreaming;
+      const childrenHaveStopped =
+        status.child1.isMessageStreaming === false && status.child2.isMessageStreaming === false;
+      if (childIsStreaming) {
         setHasStopButton(true);
         return;
       }
+      if (childrenHaveStopped) {
+        setHasStopButton(false);
+        return;
+      }
     }
-    setHasStopButton(false);
     return;
   }, [status]);
 
@@ -91,7 +97,6 @@ export const CompareLayout: React.FunctionComponent = () => {
   const handleSend = (value: string) => {
     setInput(value);
     setHasNewInput(!hasNewInput);
-    setHasStopButton(true);
   };
 
   const changeSearchParams = (_event, value: string, order: string) => {
