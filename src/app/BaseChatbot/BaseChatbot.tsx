@@ -68,6 +68,7 @@ const BaseChatbot: React.FunctionComponent = () => {
   };
 
   const handleError = (e) => {
+    console.error(e);
     const title = ERROR_TITLE;
     const body = ERROR_BODY;
     let newError;

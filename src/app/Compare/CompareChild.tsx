@@ -120,6 +120,7 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
   };
 
   const handleError = (e) => {
+    console.error(e);
     const title = ERROR_TITLE;
     const body = ERROR_BODY;
     let newError;
