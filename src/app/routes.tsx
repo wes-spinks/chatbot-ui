@@ -45,4 +45,4 @@ const router = createBrowserRouter([
 
 const AppRoutes = (): React.ReactElement => <RouterProvider router={router} />;
 
-export { AppRoutes, router, routes };
+export { AppRoutes, routes, router };

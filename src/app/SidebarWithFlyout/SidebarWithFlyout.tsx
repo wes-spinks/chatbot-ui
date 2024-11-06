@@ -39,13 +39,13 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
     }
   }, [visibleFlyout]);
 
-  const toggleFlyout = (e) => {
+  /*const toggleFlyout = (e) => {
     if (visibleFlyout === e.target.innerText) {
       setVisibleFlyout(null);
     } else {
       setVisibleFlyout(e.target.innerText);
     }
-  };
+  };*/
 
   return (
     <PageSidebar>
