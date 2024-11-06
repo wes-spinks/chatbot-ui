@@ -59,7 +59,7 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
           </div>
         </div>
 
-        <Nav id="nav-primary-simple" className="pf-c-nav" aria-label="Global">
+        <Nav id="nav-primary-simple" className="pf-c-nav sidebar-nav" aria-label="Global">
           <NavList>
             <NavItem onClick={() => setVisibleFlyout(null)}>
               <NavLink to="/">Home</NavLink>

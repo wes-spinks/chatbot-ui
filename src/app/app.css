@@ -359,3 +359,9 @@ pf-v6-c-page__main-container.pf-m-fill {
     flex-wrap: wrap;
   }
 }
+
+.sidebar-nav {
+  @media screen and (min-width: 1200px) {
+    --pf-v6-c-nav--PaddingInlineStart: 0.8rem;
+  }
+}
