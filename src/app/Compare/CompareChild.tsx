@@ -14,11 +14,12 @@ import {
 import { CannedChatbot } from '../types/CannedChatbot';
 import { HeaderDropdown } from '@app/HeaderDropdown/HeaderDropdown';
 import { ERROR_TITLE, getId } from '@app/utils/utils';
+import { useChildStatus } from './ChildStatusProvider';
 interface Source {
   link: string;
 }
 
-interface CompareChatbotProps {
+interface CompareChildProps {
   chatbot: CannedChatbot;
   allChatbots: CannedChatbot[];
   setIsSendButtonDisabled: (bool: boolean) => void;
@@ -29,10 +30,9 @@ interface CompareChatbotProps {
   setChatbot: (value: CannedChatbot) => void;
   setSearchParams: (_event, value: string, order: string) => void;
   order: string;
-  setShowStopButton: (bool: bolean) => void;
 }
 
-const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
+const CompareChild: React.FunctionComponent<CompareChildProps> = ({
   chatbot,
   allChatbots,
   setIsSendButtonDisabled,
@@ -43,21 +43,24 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
   setChatbot,
   setSearchParams,
   order,
-  setShowStopButton,
-}: CompareChatbotProps) => {
+}: CompareChildProps) => {
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
-  const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
-  const [currentSources, setCurrentSources] = React.useState<Source[]>();
-  const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
-  const [error, setError] = React.useState<{ title: string; body: string }>();
-  const [announcement, setAnnouncement] = React.useState<string>();
   const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(chatbot);
   const [currentDate, setCurrentDate] = React.useState<Date>();
+  const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
+  const [currentSources, setCurrentSources] = React.useState<Source[]>();
+  const [error, setError] = React.useState<{ title: string; body: string }>();
+  const [announcement, setAnnouncement] = React.useState<string>();
+  const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
+  const { updateStatus } = useChildStatus();
+  const url = process.env.REACT_APP_ROUTER_URL ?? '';
+  const displayMode = ChatbotDisplayMode.embedded;
 
   const handleSend = async (input: string) => {
     setIsSendButtonDisabled(true);
     const date = new Date();
     const newMessages = structuredClone(messages);
+    // when a new message comes in, we add the last streaming message to the array and reset it
     if (currentMessage.length > 0) {
       newMessages.push({
         id: getId(),
@@ -84,6 +87,7 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
     // make announcement to assistive devices that new messages have been added
     setAnnouncement(`Message from You: ${input}. Message from Chatbot is loading.`);
 
+    // sources come in last; we display them once they come in
     const sources = await fetchData(input);
     if (sources) {
       setCurrentSources(sources);
@@ -91,7 +95,8 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
     // make announcement to assistive devices that new message has been added
     currentMessage.length > 0 && setAnnouncement(`Message from Chatbot: ${currentMessage.join('')}`);
     setIsSendButtonDisabled(false);
-    setShowStopButton(false);
+    // this is used to control state of stop button
+    updateStatus(order === 'first' ? 'child1' : 'child2', { isMessageStreaming: false });
   };
 
   React.useEffect(() => {
@@ -107,8 +112,6 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
       scrollToBottomRef.current?.scrollIntoView();
     }
   }, [messages, currentMessage, currentSources]);
-
-  const url = process.env.REACT_APP_ROUTER_URL ?? '';
 
   const ERROR_BODY = {
     'Error: 404': `${currentChatbot?.displayName} is currently unavailable. Use a different assistant or try again later.`,
@@ -134,12 +137,10 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
   async function fetchData(userMessage: string) {
     if (controller) {
       controller.abort();
-      setShowStopButton(false);
     }
 
     const newController = new AbortController();
     setController(newController);
-    setShowStopButton(true);
 
     try {
       let isSource = false;
@@ -166,7 +167,9 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
             throw new Error('Other');
         }
       }
+      updateStatus(order === 'first' ? 'child1' : 'child2', { isMessageStreaming: true });
 
+      // start reading the streaming message
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
       let done;
@@ -179,6 +182,8 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
         }
 
         const chunk = decoder.decode(value, { stream: true });
+
+        // if we see sources at the end of the stream
         if (chunk.includes('Sources used to generate this content')) {
           sources.push(chunk);
           isSource = true;
@@ -205,6 +210,7 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
       if (error instanceof Error) {
         if (error.name !== 'AbortError') {
           handleError(error);
+          updateStatus(order === 'first' ? 'child1' : 'child2', { isMessageStreaming: false });
         }
       }
       return undefined;
@@ -213,12 +219,10 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
     }
   }
 
-  const displayMode = ChatbotDisplayMode.embedded;
-
+  // for chatbot selector dropdown
   const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: CannedChatbot) => {
     if (controller) {
       controller.abort();
-      setShowStopButton(false);
     }
     setController(undefined);
     setCurrentChatbot(value);
@@ -230,6 +234,9 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
     setIsSendButtonDisabled(false);
     setChatbot(value);
     setSearchParams(_event, value.name, order);
+    updateStatus(order === 'first' ? 'child1' : 'child2', {
+      isMessageStreaming: false,
+    });
   };
 
   return (
@@ -274,4 +281,4 @@ const CompareChatbot: React.FunctionComponent<CompareChatbotProps> = ({
   );
 };
 
-export { CompareChatbot };
+export { CompareChild as CompareChatbot };

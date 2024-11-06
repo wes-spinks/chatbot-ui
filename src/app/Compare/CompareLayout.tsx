@@ -1,13 +1,17 @@
-import { CompareChatbot } from '@app/Compare/CompareChatbot';
+import { CompareChatbot } from '@app/Compare/CompareChild';
 import { CannedChatbot } from '@app/types/CannedChatbot';
 import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { css } from '@patternfly/react-styles';
 import { ChatbotFooter, ChatbotFootnote, MessageBar } from '@patternfly/virtual-assistant';
 import * as React from 'react';
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router-dom';
+import { useChildStatus } from './ChildStatusProvider';
 
-export const Compare: React.FunctionComponent = () => {
+export const CompareLayout: React.FunctionComponent = () => {
+  // information from api
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
+
+  // state
   const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(false);
   const [input, setInput] = React.useState<string>();
   const [hasNewInput, setHasNewInput] = React.useState(false);
@@ -19,21 +23,14 @@ export const Compare: React.FunctionComponent = () => {
   const [showFirstChatbot, setShowFirstChatbot] = React.useState(true);
   const [showSecondChatbot, setShowSecondChatbot] = React.useState(false);
   const [hasStopButton, setHasStopButton] = React.useState(false);
+
+  // constants for search params
   const [searchParams, setSearchParams] = useSearchParams();
   const assistants = searchParams.get('assistants')?.split(',');
   const navigate = useNavigate();
 
-  const handleToggleClick = (event) => {
-    const id = event.currentTarget.id;
-    setIsSelected(id);
-    setShowSecondChatbot(!showSecondChatbot);
-    setShowFirstChatbot(!showFirstChatbot);
-  };
-
-  const handleSend = (value: string) => {
-    setInput(value);
-    setHasNewInput(!hasNewInput);
-  };
+  // context, used for stop buttons
+  const { status } = useChildStatus();
 
   React.useEffect(() => {
     document.title = `Red Hat Composer AI Studio | Compare`;
@@ -53,6 +50,8 @@ export const Compare: React.FunctionComponent = () => {
       navigate('/');
     }
 
+    // we want to show the first if we switch to the mobile toggle view
+    // and reset/switch back to normal otherwise
     const updateChatbotVisibility = () => {
       if (window.innerWidth >= 901) {
         setShowFirstChatbot(true);
@@ -69,6 +68,31 @@ export const Compare: React.FunctionComponent = () => {
       window.removeEventListener('resize', updateChatbotVisibility);
     };
   }, []);
+
+  React.useEffect(() => {
+    if (status) {
+      if (status.child1.isMessageStreaming || status.child2.isMessageStreaming) {
+        setHasStopButton(true);
+        return;
+      }
+    }
+    setHasStopButton(false);
+    return;
+  }, [status]);
+
+  // this only happens on mobile
+  const handleChildToggleClick = (event) => {
+    const id = event.currentTarget.id;
+    setIsSelected(id);
+    setShowSecondChatbot(!showSecondChatbot);
+    setShowFirstChatbot(!showFirstChatbot);
+  };
+
+  const handleSend = (value: string) => {
+    setInput(value);
+    setHasNewInput(!hasNewInput);
+    setHasStopButton(true);
+  };
 
   const changeSearchParams = (_event, value: string, order: string) => {
     if (order === 'first' && secondChatbot) {
@@ -100,14 +124,14 @@ export const Compare: React.FunctionComponent = () => {
               text="Assistant 1"
               buttonId="toggle-group-assistant-1"
               isSelected={isSelected === 'toggle-group-assistant-1'}
-              onChange={handleToggleClick}
+              onChange={handleChildToggleClick}
             />
             <ToggleGroupItem
               className="compare-toggle"
               text="Assistant 2"
               buttonId="toggle-group-assistant-2"
               isSelected={isSelected === 'toggle-group-assistant-2'}
-              onChange={handleToggleClick}
+              onChange={handleChildToggleClick}
             />
           </ToggleGroup>
         </div>
@@ -124,7 +148,6 @@ export const Compare: React.FunctionComponent = () => {
               hasNewInput={hasNewInput}
               setSearchParams={changeSearchParams}
               order="first"
-              setShowStopButton={setHasStopButton}
             />
           </div>
           <div className={css('compare-item', !showSecondChatbot ? 'compare-item-hidden' : undefined)}>
@@ -139,7 +162,6 @@ export const Compare: React.FunctionComponent = () => {
               hasNewInput={hasNewInput}
               setSearchParams={changeSearchParams}
               order="second"
-              setShowStopButton={setHasStopButton}
             />
           </div>
         </div>

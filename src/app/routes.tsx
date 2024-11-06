@@ -3,8 +3,8 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { NotFound } from '@app/NotFound/NotFound';
 import { BaseChatbot } from '@app/BaseChatbot/BaseChatbot';
 import { AppLayout } from '@app/AppLayout/AppLayout';
-import { Compare } from '@app/Compare/Compare';
 import { chatbotLoader } from '@app/utils/utils';
+import { ComparePage } from './Compare/ComparePage';
 
 export interface IAppRoute {
   label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
@@ -37,7 +37,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'compare',
-        element: <Compare />,
+        element: <ComparePage />,
         loader: chatbotLoader,
         errorElement: <NotFound />,
       },

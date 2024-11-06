@@ -209,7 +209,6 @@ const BaseChatbot: React.FunctionComponent = () => {
   const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: CannedChatbot) => {
     if (controller) {
       controller.abort();
-      setHasStopButton(false);
     }
     setController(undefined);
     setCurrentChatbot(value);
