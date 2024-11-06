@@ -282,4 +282,4 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
   );
 };
 
-export { CompareChild as CompareChatbot };
+export { CompareChild };

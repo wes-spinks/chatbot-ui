@@ -1,4 +1,4 @@
-import { CompareChatbot } from '@app/Compare/CompareChild';
+import { CompareChild } from '@app/Compare/CompareChild';
 import { CannedChatbot } from '@app/types/CannedChatbot';
 import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { css } from '@patternfly/react-styles';
@@ -137,7 +137,7 @@ export const CompareLayout: React.FunctionComponent = () => {
         </div>
         <div className="compare">
           <div className={css('compare-item', !showFirstChatbot ? 'compare-item-hidden' : undefined)}>
-            <CompareChatbot
+            <CompareChild
               chatbot={firstChatbot}
               allChatbots={chatbots}
               controller={firstController}
@@ -151,7 +151,7 @@ export const CompareLayout: React.FunctionComponent = () => {
             />
           </div>
           <div className={css('compare-item', !showSecondChatbot ? 'compare-item-hidden' : undefined)}>
-            <CompareChatbot
+            <CompareChild
               chatbot={secondChatbot}
               allChatbots={chatbots}
               controller={secondController}
