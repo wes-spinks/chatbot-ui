@@ -12,7 +12,6 @@ export const CompareLayout: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
 
   // state
-  const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(false);
   const [input, setInput] = React.useState<string>();
   const [hasNewInput, setHasNewInput] = React.useState(false);
   const [firstController, setFirstController] = React.useState<AbortController>();
@@ -147,7 +146,6 @@ export const CompareLayout: React.FunctionComponent = () => {
               allChatbots={chatbots}
               controller={firstController}
               setController={setFirstController}
-              setIsSendButtonDisabled={setIsSendButtonDisabled}
               input={input}
               setChatbot={setFirstChatbot}
               hasNewInput={hasNewInput}
@@ -161,7 +159,6 @@ export const CompareLayout: React.FunctionComponent = () => {
               allChatbots={chatbots}
               controller={secondController}
               setController={setSecondController}
-              setIsSendButtonDisabled={setIsSendButtonDisabled}
               input={input}
               setChatbot={setSecondChatbot}
               hasNewInput={hasNewInput}
@@ -175,9 +172,9 @@ export const CompareLayout: React.FunctionComponent = () => {
             onSendMessage={handleSend}
             hasMicrophoneButton
             hasAttachButton={false}
-            isSendButtonDisabled={isSendButtonDisabled}
             hasStopButton={hasStopButton}
             handleStopButton={handleStopButton}
+            alwayShowSendButton
           />
           <ChatbotFootnote label="Verify all information from this tool. LLMs make mistakes." />
         </ChatbotFooter>
