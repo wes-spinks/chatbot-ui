@@ -137,6 +137,7 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
 
   // fixme this is getting too large; we should refactor
   async function fetchData(userMessage: string) {
+    updateStatus(order === 'first' ? 'child1' : 'child2', { isMessageStreaming: true });
     if (controller) {
       controller.abort();
     }
@@ -169,7 +170,6 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
             throw new Error('Other');
         }
       }
-      updateStatus(order === 'first' ? 'child1' : 'child2', { isMessageStreaming: true });
 
       // start reading the streaming message
       const reader = response.body.getReader();

@@ -28,6 +28,7 @@ interface Source {
 
 const BaseChatbot: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
+  const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(true);
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
   const [currentSources, setCurrentSources] = React.useState<Source[]>();
@@ -167,6 +168,7 @@ const BaseChatbot: React.FunctionComponent = () => {
   }
 
   const handleSend = async (input: string) => {
+    setIsSendButtonDisabled(true);
     const date = new Date();
     const newMessages = structuredClone(messages);
     if (currentMessage.length > 0) {
@@ -229,6 +231,14 @@ const BaseChatbot: React.FunctionComponent = () => {
     setHasStopButton(false);
   };
 
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => {
+    if (value !== '') {
+      setIsSendButtonDisabled(false);
+      return;
+    }
+    setIsSendButtonDisabled(true);
+  };
+
   return (
     <Chatbot displayMode={displayMode}>
       <ChatbotHeader>
@@ -281,6 +291,8 @@ const BaseChatbot: React.FunctionComponent = () => {
           hasStopButton={hasStopButton}
           handleStopButton={handleStopButton}
           alwayShowSendButton
+          onChange={handleChange}
+          isSendButtonDisabled={isSendButtonDisabled}
         />
         <ChatbotFootnote label="Verify all information from this tool. LLMs make mistakes." />
       </ChatbotFooter>

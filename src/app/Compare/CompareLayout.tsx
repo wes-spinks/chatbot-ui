@@ -12,6 +12,7 @@ export const CompareLayout: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
 
   // state
+  const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(true);
   const [input, setInput] = React.useState<string>();
   const [hasNewInput, setHasNewInput] = React.useState(false);
   const [firstController, setFirstController] = React.useState<AbortController>();
@@ -96,6 +97,7 @@ export const CompareLayout: React.FunctionComponent = () => {
   const handleSend = (value: string) => {
     setInput(value);
     setHasNewInput(!hasNewInput);
+    setIsSendButtonDisabled(true);
   };
 
   const changeSearchParams = (_event, value: string, order: string) => {
@@ -115,6 +117,14 @@ export const CompareLayout: React.FunctionComponent = () => {
       secondController.abort();
     }
     setHasStopButton(false);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => {
+    if (value !== '') {
+      setIsSendButtonDisabled(false);
+      return;
+    }
+    setIsSendButtonDisabled(true);
   };
 
   return (
@@ -175,6 +185,8 @@ export const CompareLayout: React.FunctionComponent = () => {
             hasStopButton={hasStopButton}
             handleStopButton={handleStopButton}
             alwayShowSendButton
+            onChange={handleChange}
+            isSendButtonDisabled={isSendButtonDisabled}
           />
           <ChatbotFootnote label="Verify all information from this tool. LLMs make mistakes." />
         </ChatbotFooter>
