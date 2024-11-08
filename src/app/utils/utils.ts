@@ -15,6 +15,9 @@ export const getId = () => {
 
 export const getChatbots = async () => {
   const url = process.env.REACT_APP_INFO_URL ?? '';
+  if (url === '') {
+    throw json({ status: 'Misconfigured' });
+  }
   return fetch(url)
     .then((res) => {
       if (res.ok) {

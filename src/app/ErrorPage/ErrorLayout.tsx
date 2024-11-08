@@ -8,9 +8,16 @@ interface ErrorLayoutProps {
   hasRetry?: boolean;
   title: string;
   body: string;
-  errorCode: string;
+  errorCode?: string;
+  hasHome?: boolean;
 }
-const ErrorLayout: React.FunctionComponent<ErrorLayoutProps> = ({ hasRetry, title, body, errorCode }) => {
+const ErrorLayout: React.FunctionComponent<ErrorLayoutProps> = ({
+  hasRetry,
+  title,
+  body,
+  errorCode,
+  hasHome = true,
+}) => {
   const supportLink = process.env.SUPPORT_LINK ?? '';
   const navigate = useNavigate();
 
@@ -31,7 +38,7 @@ const ErrorLayout: React.FunctionComponent<ErrorLayoutProps> = ({ hasRetry, titl
         </div>
         <div className="error-page__text-and-buttons">
           <div className="error-page__text">
-            <span className="error-page__error-code">Error Code {errorCode}</span>
+            {errorCode && <span className="error-page__error-code">Error Code {errorCode}</span>}
             <h1>{title}</h1>
             <p>{body}</p>
           </div>
@@ -41,9 +48,11 @@ const ErrorLayout: React.FunctionComponent<ErrorLayoutProps> = ({ hasRetry, titl
                 Retry
               </Button>
             )}
-            <Button component="a" href="/" size="sm" variant="secondary">
-              Go back home
-            </Button>
+            {hasHome && (
+              <Button component="a" href="/" size="sm" variant="secondary">
+                Go back home
+              </Button>
+            )}
             {supportLink && (
               <Button component="a" href={supportLink} size="sm" variant="secondary">
                 Contact support

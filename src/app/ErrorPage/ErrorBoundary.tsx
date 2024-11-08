@@ -5,19 +5,8 @@ import { LoginPage } from '@app/LoginPage/LoginPage';
 
 const ErrorBoundary: React.FunctionComponent = () => {
   const error = useRouteError();
-  console.error(error);
 
   if (isRouteErrorResponse(error)) {
-    if (error.status === 404) {
-      return (
-        <ErrorLayout
-          errorCode="404"
-          title="Page not found"
-          body="The page you're looking for doesn't exit or may have been moved. Let's get you back on track!"
-        />
-      );
-    }
-
     if (error.status === 401) {
       return <LoginPage />;
     }
@@ -32,6 +21,16 @@ const ErrorBoundary: React.FunctionComponent = () => {
       );
     }
 
+    if (error.status === 404) {
+      return (
+        <ErrorLayout
+          errorCode="404"
+          title="Page not found"
+          body="The page you're looking for doesn't exit or may have been moved. Let's get you back on track!"
+        />
+      );
+    }
+
     if (error.status === 503) {
       return (
         <ErrorLayout
@@ -41,6 +40,17 @@ const ErrorBoundary: React.FunctionComponent = () => {
           body="Our servers are currently down for maintenance or experiencing high demand. Please check back later."
         />
       );
+    }
+  }
+
+  if (typeof error === 'object' && error !== null && 'data' in error) {
+    if (
+      typeof error.data === 'object' &&
+      error.data !== null &&
+      'status' in error.data &&
+      error.data.status === 'Misconfigured'
+    ) {
+      return <ErrorLayout title="App not configured" body="Please update your environment variables" hasHome={false} />;
     }
   }
 
