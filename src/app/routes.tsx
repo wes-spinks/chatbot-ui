@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { NotFound } from '@app/NotFound/NotFound';
 import { BaseChatbot } from '@app/BaseChatbot/BaseChatbot';
 import { AppLayout } from '@app/AppLayout/AppLayout';
 import { chatbotLoader } from '@app/utils/utils';
 import { ComparePage } from './Compare/ComparePage';
+import { ErrorBoundary } from './ErrorPage/ErrorBoundary';
 
 export interface IAppRoute {
   label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
@@ -27,19 +27,17 @@ const routes: AppRouteConfig[] = [{ path: '/', label: 'Home', title: 'Red Hat Co
 const router = createBrowserRouter([
   {
     element: <AppLayout />,
-    errorElement: <NotFound />,
+    errorElement: <ErrorBoundary />,
     children: [
       {
         path: '/',
         element: <BaseChatbot />,
         loader: chatbotLoader,
-        errorElement: <NotFound />,
       },
       {
         path: 'compare',
         element: <ComparePage />,
         loader: chatbotLoader,
-        errorElement: <NotFound />,
       },
     ],
   },

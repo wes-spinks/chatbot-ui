@@ -8,7 +8,7 @@ module.exports = {
   // Indicates whether the coverage information should be collected while executing the test
   collectCoverage: true,
 
-  collectCoverageFrom: ['<rootDir>/src/app/**/*.tsx'],
+  collectCoverageFrom: ['<rootDir>/src/app/**/*.tsx', '<rootDir>/src/app/utils/utils.ts'],
 
   // The directory where Jest should output its coverage files
   coverageDirectory: 'coverage',
@@ -37,4 +37,5 @@ module.exports = {
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
+  setupFilesAfterEnv: ['./setupTests.ts'],
 };
