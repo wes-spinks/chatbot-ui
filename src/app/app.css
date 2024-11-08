@@ -127,3 +127,9 @@ pf-v6-c-page__main-container.pf-m-fill {
     }
   }
 }
+
+.pf-chatbot__message.pf-chatbot__message--user {
+  img {
+    border: 1px solid var(--pf-t--global--border--color--default);
+  }
+}

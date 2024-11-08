@@ -19,16 +19,19 @@ import { CannedChatbot } from '../types/CannedChatbot';
 import { HeaderDropdown } from '@app/HeaderDropdown/HeaderDropdown';
 import { ERROR_TITLE, getId } from '@app/utils/utils';
 import { Button } from '@patternfly/react-core';
+import botAvatar from '@app/bgimages/RHCAI-studio-avatar.svg';
+import userAvatar from '@app/bgimages/avatarImg.svg';
+
 interface Source {
   link: string;
 }
 
 const BaseChatbot: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
+  const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(true);
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
   const [currentSources, setCurrentSources] = React.useState<Source[]>();
-  const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(false);
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
   const [error, setError] = React.useState<{ title: string; body: string }>();
   const [announcement, setAnnouncement] = React.useState<string>();
@@ -170,6 +173,7 @@ const BaseChatbot: React.FunctionComponent = () => {
     const newMessages = structuredClone(messages);
     if (currentMessage.length > 0) {
       newMessages.push({
+        avatar: botAvatar,
         id: getId(),
         name: currentChatbot?.displayName,
         role: 'bot',
@@ -184,6 +188,7 @@ const BaseChatbot: React.FunctionComponent = () => {
       setCurrentDate(undefined);
     }
     newMessages.push({
+      avatar: userAvatar,
       id: getId(),
       name: 'You',
       role: 'user',
@@ -201,7 +206,6 @@ const BaseChatbot: React.FunctionComponent = () => {
     }
     // make announcement to assistive devices that new message has been added
     currentMessage.length > 0 && setAnnouncement(`Message from Chatbot: ${currentMessage.join('')}`);
-    setIsSendButtonDisabled(false);
     setHasStopButton(false);
   };
 
@@ -218,7 +222,6 @@ const BaseChatbot: React.FunctionComponent = () => {
     setCurrentSources(undefined);
     setError(undefined);
     setAnnouncement(undefined);
-    setIsSendButtonDisabled(false);
   };
 
   const handleStopButton = () => {
@@ -226,6 +229,14 @@ const BaseChatbot: React.FunctionComponent = () => {
       controller.abort();
     }
     setHasStopButton(false);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => {
+    if (value !== '') {
+      setIsSendButtonDisabled(false);
+      return;
+    }
+    setIsSendButtonDisabled(true);
   };
 
   return (
@@ -260,6 +271,7 @@ const BaseChatbot: React.FunctionComponent = () => {
           ))}
           {currentMessage.length > 0 && (
             <Message
+              avatar={botAvatar}
               name={currentChatbot?.displayName}
               key="currentMessage"
               role="bot"
@@ -276,9 +288,11 @@ const BaseChatbot: React.FunctionComponent = () => {
           onSendMessage={handleSend}
           hasMicrophoneButton
           hasAttachButton={false}
-          isSendButtonDisabled={isSendButtonDisabled}
           hasStopButton={hasStopButton}
           handleStopButton={handleStopButton}
+          alwayShowSendButton
+          onChange={handleChange}
+          isSendButtonDisabled={isSendButtonDisabled}
         />
         <ChatbotFootnote label="Verify all information from this tool. LLMs make mistakes." />
       </ChatbotFooter>

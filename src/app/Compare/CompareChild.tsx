@@ -15,6 +15,9 @@ import { CannedChatbot } from '../types/CannedChatbot';
 import { HeaderDropdown } from '@app/HeaderDropdown/HeaderDropdown';
 import { ERROR_TITLE, getId } from '@app/utils/utils';
 import { useChildStatus } from './ChildStatusProvider';
+import botAvatar from '@app/bgimages/RHCAI-studio-avatar.svg';
+import userAvatar from '@app/bgimages/avatarImg.svg';
+
 interface Source {
   link: string;
 }
@@ -22,7 +25,6 @@ interface Source {
 interface CompareChildProps {
   chatbot: CannedChatbot;
   allChatbots: CannedChatbot[];
-  setIsSendButtonDisabled: (bool: boolean) => void;
   controller?: AbortController;
   setController: (controller: AbortController | undefined) => void;
   input?: string;
@@ -35,7 +37,6 @@ interface CompareChildProps {
 const CompareChild: React.FunctionComponent<CompareChildProps> = ({
   chatbot,
   allChatbots,
-  setIsSendButtonDisabled,
   controller,
   setController,
   input,
@@ -57,12 +58,12 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
   const displayMode = ChatbotDisplayMode.embedded;
 
   const handleSend = async (input: string) => {
-    setIsSendButtonDisabled(true);
     const date = new Date();
     const newMessages = structuredClone(messages);
     // when a new message comes in, we add the last streaming message to the array and reset it
     if (currentMessage.length > 0) {
       newMessages.push({
+        avatar: botAvatar,
         id: getId(),
         name: currentChatbot?.displayName,
         role: 'bot',
@@ -76,6 +77,7 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
       setCurrentSources(undefined);
     }
     newMessages.push({
+      avatar: userAvatar,
       id: getId(),
       name: 'You',
       role: 'user',
@@ -94,7 +96,6 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
     }
     // make announcement to assistive devices that new message has been added
     currentMessage.length > 0 && setAnnouncement(`Message from Chatbot: ${currentMessage.join('')}`);
-    setIsSendButtonDisabled(false);
     // this is used to control state of stop button
     updateStatus(order === 'first' ? 'child1' : 'child2', { isMessageStreaming: false });
   };
@@ -136,6 +137,7 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
 
   // fixme this is getting too large; we should refactor
   async function fetchData(userMessage: string) {
+    updateStatus(order === 'first' ? 'child1' : 'child2', { isMessageStreaming: true });
     if (controller) {
       controller.abort();
     }
@@ -168,7 +170,6 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
             throw new Error('Other');
         }
       }
-      updateStatus(order === 'first' ? 'child1' : 'child2', { isMessageStreaming: true });
 
       // start reading the streaming message
       const reader = response.body.getReader();
@@ -232,7 +233,6 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
     setCurrentSources(undefined);
     setError(undefined);
     setAnnouncement(undefined);
-    setIsSendButtonDisabled(false);
     setChatbot(value);
     setSearchParams(_event, value.name, order);
     updateStatus(order === 'first' ? 'child1' : 'child2', {
@@ -267,6 +267,7 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
           ))}
           {currentMessage.length > 0 && (
             <Message
+              avatar={botAvatar}
               name={currentChatbot?.displayName}
               key="currentMessage"
               role="bot"
