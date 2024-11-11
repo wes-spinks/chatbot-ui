@@ -133,3 +133,94 @@ pf-v6-c-page__main-container.pf-m-fill {
     border: 1px solid var(--pf-t--global--border--color--default);
   }
 }
+
+.login-page {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pf-t--global--spacer--md);
+  padding: var(--pf-t--global--spacer--md);
+
+  @media screen and (max-width: 1025px) {
+    padding: var(--pf-t--global--spacer--md);
+  }
+
+  .login-page__text {
+    max-width: 50rem;
+    text-align: center;
+  }
+  .login-page__button {
+    margin-top: var(--pf-t--global--spacer--md);
+  }
+}
+
+.error-page {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pf-t--global--spacer--md);
+
+  .error-page__image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media screen and (max-width: 1025px) {
+      align-items: initial;
+      justify-content: initial;
+    }
+  }
+
+  .error-page__main-layout {
+    display: flex;
+    gap: var(--pf-t--global--spacer--xl);
+
+    @media screen and (max-width: 1025px) {
+      flex-direction: column;
+      gap: var(--pf-t--global--spacer--sm);
+    }
+  }
+
+  .error-page__text-and-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pf-t--global--spacer--md);
+    border-left: 1px solid var(--pf-t--global--border--color--default);
+    padding: 0 var(--pf-t--global--spacer--xl) 0 var(--pf-t--global--spacer--xl);
+
+    @media screen and (max-width: 1025px) {
+      border-left: 0;
+      padding: 0;
+    }
+  }
+
+  .error-page__error-code {
+    color: var(--pf-t--global--text--color--subtle);
+    font-size: var(--pf-t--global--font--size--xs);
+    font-family: var(--pf-t--global--font--family--mono);
+  }
+
+  .error-page__text {
+    max-width: 30rem;
+    h1 {
+      font-size: var(--pf-t--global--font--size--heading--h2);
+      margin-bottom: var(--pf-t--global--spacer--sm);
+      font-family: var(--pf-t--chatbot--heading--font-family);
+    }
+    p {
+      font-size: var(--pf-t--global--font--size--md);
+      font-family: var(--pf-t--global--font--family--body);
+    }
+  }
+
+  .error-page__buttons {
+    display: flex;
+    gap: var(--pf-t--global--spacer--sm);
+    flex-wrap: wrap;
+  }
+}
