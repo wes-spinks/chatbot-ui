@@ -19,6 +19,7 @@ import botAvatar from '@app/bgimages/RHCAI-studio-avatar.svg';
 import userAvatar from '@app/bgimages/avatarImg.svg';
 import { Source } from '@app/types/Source';
 import { SourceResponse } from '@app/types/SourceResponse';
+import { ErrorObject } from '@app/types/ErrorObject';
 
 interface CompareChildProps {
   chatbot: CannedChatbot;
@@ -30,6 +31,10 @@ interface CompareChildProps {
   setChatbot: (value: CannedChatbot) => void;
   setSearchParams: (_event, value: string, order: string) => void;
   order: string;
+  error?: ErrorObject;
+  setError: (error?: ErrorObject) => void;
+  file?: File;
+  setFile: (file?: File) => void;
 }
 
 const CompareChild: React.FunctionComponent<CompareChildProps> = ({
@@ -42,13 +47,16 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
   setChatbot,
   setSearchParams,
   order,
+  error,
+  setError,
+  file,
+  setFile,
 }: CompareChildProps) => {
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(chatbot);
   const [currentDate, setCurrentDate] = React.useState<Date>();
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
   const [currentSources, setCurrentSources] = React.useState<Source[]>();
-  const [error, setError] = React.useState<{ title: string; body: string }>();
   const [announcement, setAnnouncement] = React.useState<string>();
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
   const { updateStatus } = useChildStatus();
@@ -81,6 +89,7 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
       role: 'user',
       content: input,
       timestamp: `${date?.toLocaleDateString()} ${date?.toLocaleTimeString()}`,
+      ...(file && { attachmentName: file.name }),
     });
     setMessages(newMessages);
     setCurrentDate(date);
@@ -149,6 +158,8 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
 
     try {
       let isSource = false;
+
+      setFile(undefined);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -263,9 +274,9 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
               onClose={() => {
                 setError(undefined);
               }}
-              title={error.title}
+              title={error?.title}
             >
-              {error.body}
+              {error?.body}
             </ChatbotAlert>
           )}
           <ChatbotWelcomePrompt title="Hello, Chatbot User" description="How may I help you today?" />

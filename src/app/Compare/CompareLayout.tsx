@@ -2,10 +2,11 @@ import { CompareChild } from '@app/Compare/CompareChild';
 import { CannedChatbot } from '@app/types/CannedChatbot';
 import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { css } from '@patternfly/react-styles';
-import { ChatbotFooter, ChatbotFootnote, MessageBar } from '@patternfly/virtual-assistant';
+import { ChatbotFooter, ChatbotFootnote, FileDetailsLabel, MessageBar } from '@patternfly/virtual-assistant';
 import * as React from 'react';
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router-dom';
 import { useChildStatus } from './ChildStatusProvider';
+import { ErrorObject } from '@app/types/ErrorObject';
 
 export const CompareLayout: React.FunctionComponent = () => {
   // information from api
@@ -23,6 +24,9 @@ export const CompareLayout: React.FunctionComponent = () => {
   const [showFirstChatbot, setShowFirstChatbot] = React.useState(true);
   const [showSecondChatbot, setShowSecondChatbot] = React.useState(false);
   const [hasStopButton, setHasStopButton] = React.useState(false);
+  const [file, setFile] = React.useState<File>();
+  const [isLoadingFile, setIsLoadingFile] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<ErrorObject>();
 
   // constants for search params
   const [searchParams, setSearchParams] = useSearchParams();
@@ -127,6 +131,57 @@ export const CompareLayout: React.FunctionComponent = () => {
     setIsSendButtonDisabled(true);
   };
 
+  // Attachments
+  // --------------------------------------------------------------------------
+  // example of how you can read a text file
+  const readFile = (file: File) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+
+  // handle file drop/selection
+  const handleFile = (fileArr: File[]) => {
+    setIsLoadingFile(true);
+    // any custom validation you may want
+    if (fileArr.length > 1) {
+      setFile(undefined);
+      setError({ title: 'Uploaded more than one file', body: 'Upload only one file' });
+      return;
+    }
+    // this is 200MB in bytes; size is in bytes
+    if (fileArr[0].size > 200000000) {
+      setFile(undefined);
+      setError({ title: 'File is larger than 200MB.', body: 'Try a smaller file' });
+      return;
+    }
+
+    readFile(fileArr[0])
+      .then((data) => {
+        // eslint-disable-next-line no-console
+        console.log(data);
+        setFile(fileArr[0]);
+        setError(undefined);
+        // this is just for demo purposes, to make the loading state really obvious
+        setTimeout(() => {
+          setIsLoadingFile(false);
+        }, 1000);
+      })
+      .catch((error: DOMException) => {
+        setError({ title: 'Failed to read file', body: error.message });
+      });
+  };
+
+  const handleAttach = (data: File[]) => {
+    handleFile(data);
+  };
+
+  const onClose = () => {
+    setFile(undefined);
+  };
+
   return (
     firstChatbot &&
     secondChatbot && (
@@ -161,6 +216,10 @@ export const CompareLayout: React.FunctionComponent = () => {
               hasNewInput={hasNewInput}
               setSearchParams={changeSearchParams}
               order="first"
+              error={error}
+              setError={setError}
+              file={file}
+              setFile={setFile}
             />
           </div>
           <div className={css('compare-item', !showSecondChatbot ? 'compare-item-hidden' : undefined)}>
@@ -174,19 +233,28 @@ export const CompareLayout: React.FunctionComponent = () => {
               hasNewInput={hasNewInput}
               setSearchParams={changeSearchParams}
               order="second"
+              error={error}
+              setError={setError}
+              file={file}
+              setFile={setFile}
             />
           </div>
         </div>
         <ChatbotFooter>
+          {file && (
+            <div>
+              <FileDetailsLabel fileName={file.name} isLoading={isLoadingFile} onClose={onClose} />
+            </div>
+          )}
           <MessageBar
             onSendMessage={handleSend}
             hasMicrophoneButton
-            hasAttachButton={false}
             hasStopButton={hasStopButton}
             handleStopButton={handleStopButton}
             alwayShowSendButton
             onChange={handleChange}
             isSendButtonDisabled={isSendButtonDisabled}
+            handleAttach={handleAttach}
           />
           <ChatbotFootnote label="Verify all information from this tool. LLMs make mistakes." />
         </ChatbotFooter>
