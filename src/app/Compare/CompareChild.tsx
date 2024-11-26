@@ -10,7 +10,7 @@ import {
   Message,
   MessageBox,
   MessageProps,
-} from '@patternfly/virtual-assistant';
+} from '@patternfly/chatbot';
 import { CannedChatbot } from '../types/CannedChatbot';
 import { HeaderDropdown } from '@app/HeaderDropdown/HeaderDropdown';
 import { ERROR_TITLE, getId } from '@app/utils/utils';
@@ -19,6 +19,8 @@ import botAvatar from '@app/bgimages/RHCAI-studio-avatar.svg';
 import userAvatar from '@app/bgimages/avatarImg.svg';
 import { Source } from '@app/types/Source';
 import { SourceResponse } from '@app/types/SourceResponse';
+import { ErrorObject } from '@app/types/ErrorObject';
+import { UserFacingFile } from '@app/types/UserFacingFile';
 
 interface CompareChildProps {
   chatbot: CannedChatbot;
@@ -30,6 +32,10 @@ interface CompareChildProps {
   setChatbot: (value: CannedChatbot) => void;
   setSearchParams: (_event, value: string, order: string) => void;
   order: string;
+  error?: ErrorObject;
+  setError: (error?: ErrorObject) => void;
+  files?: UserFacingFile[];
+  setFiles: (file: UserFacingFile[]) => void;
 }
 
 const CompareChild: React.FunctionComponent<CompareChildProps> = ({
@@ -42,13 +48,16 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
   setChatbot,
   setSearchParams,
   order,
+  error,
+  setError,
+  files,
+  setFiles,
 }: CompareChildProps) => {
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(chatbot);
   const [currentDate, setCurrentDate] = React.useState<Date>();
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
   const [currentSources, setCurrentSources] = React.useState<Source[]>();
-  const [error, setError] = React.useState<{ title: string; body: string }>();
   const [announcement, setAnnouncement] = React.useState<string>();
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
   const { updateStatus } = useChildStatus();
@@ -81,6 +90,7 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
       role: 'user',
       content: input,
       timestamp: `${date?.toLocaleDateString()} ${date?.toLocaleTimeString()}`,
+      ...(files && { attachments: files }),
     });
     setMessages(newMessages);
     setCurrentDate(date);
@@ -150,6 +160,8 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
     try {
       let isSource = false;
 
+      setFiles([]);
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -186,25 +198,53 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
         }
 
         const chunk = decoder.decode(value, { stream: true });
-        if (chunk.includes('START_SOURCES_STRING')) {
-          sources.push(chunk);
-          isSource = true;
-        }
-        if (chunk.includes('END_SOURCES_STRING')) {
-          sources.push(chunk);
-          isSource = false;
+
+        // We've seen a START_SOURCES_STRING in a previous chunk, so switch to source mode
+        if (isSource) {
+          const endIdx = chunk.indexOf('END_SOURCES_STRING');
+          if (endIdx !== -1) {
+            // Extract source data, excluding the END_SOURCES_STRING marker
+            const sourceData = chunk.slice(0, endIdx);
+
+            if (sourceData) {
+              sources.push(sourceData);
+            }
+
+            // Process any remaining non-source content after the source block
+            const remainingText = chunk.slice(endIdx + 'END_SOURCES_STRING'.length);
+            if (remainingText) {
+              setCurrentMessage((prevData) => [...prevData, remainingText]);
+            }
+            // Switch to non-source mode
+            isSource = false;
+          }
         } else {
-          if (isSource) {
-            sources.push(chunk);
+          const startIdx = chunk.indexOf('START_SOURCES_STRING');
+          if (startIdx !== -1) {
+            // Switch to source mode and remove the START_SOURCES_STRING marker
+            isSource = true;
+            let sourceData = chunk.slice(startIdx + 'START_SOURCES_STRING'.length);
+            // The end marker may be present in the chunk as well if it's short; check for it
+            const endIdx = chunk.indexOf('END_SOURCES_STRING');
+            if (endIdx !== -1) {
+              sourceData = chunk.slice(startIdx + 'START_SOURCES_STRING'.length, endIdx);
+              isSource = false;
+              // Check for any remaining text in chunk and render it as well
+              const remainingText = chunk.slice(endIdx + 'END_SOURCES_STRING'.length);
+              if (remainingText) {
+                setCurrentMessage((prevData) => [...prevData, remainingText]);
+              }
+            }
+            sources.push(sourceData);
           } else {
+            // Render the non-source data
             setCurrentMessage((prevData) => [...prevData, chunk]);
           }
         }
       }
 
       if (sources && sources.length > 0) {
-        let sourcesString = sources.join('');
-        sourcesString = sourcesString.split('START_SOURCES_STRING')[1].split('END_SOURCES_STRING')[0];
+        const sourcesString = sources.join('');
         const parsedSources: SourceResponse = JSON.parse(sourcesString);
         const formattedSources: Source[] = [];
         parsedSources.content.forEach((source) => {
@@ -263,9 +303,9 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
               onClose={() => {
                 setError(undefined);
               }}
-              title={error.title}
+              title={error?.title}
             >
-              {error.body}
+              {error?.body}
             </ChatbotAlert>
           )}
           <ChatbotWelcomePrompt title="Hello, Chatbot User" description="How may I help you today?" />

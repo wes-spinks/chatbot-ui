@@ -9,11 +9,12 @@ import {
   ChatbotHeader,
   ChatbotHeaderMain,
   ChatbotWelcomePrompt,
+  FileDetailsLabel,
   Message,
   MessageBar,
   MessageBox,
   MessageProps,
-} from '@patternfly/virtual-assistant';
+} from '@patternfly/chatbot';
 import { useLoaderData } from 'react-router-dom';
 import { CannedChatbot } from '../types/CannedChatbot';
 import { HeaderDropdown } from '@app/HeaderDropdown/HeaderDropdown';
@@ -23,6 +24,7 @@ import botAvatar from '@app/bgimages/RHCAI-studio-avatar.svg';
 import userAvatar from '@app/bgimages/avatarImg.svg';
 import { Source } from '@app/types/Source';
 import { SourceResponse } from '@app/types/SourceResponse';
+import { UserFacingFile } from '@app/types/UserFacingFile';
 
 const BaseChatbot: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
@@ -37,6 +39,8 @@ const BaseChatbot: React.FunctionComponent = () => {
   const [controller, setController] = React.useState<AbortController>();
   const [currentDate, setCurrentDate] = React.useState<Date>();
   const [hasStopButton, setHasStopButton] = React.useState(false);
+  const [files, setFiles] = React.useState<UserFacingFile[]>([]);
+  const [isLoadingFile, setIsLoadingFile] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     document.title = `Red Hat Composer AI Studio | ${currentChatbot?.name}`;
@@ -96,6 +100,7 @@ const BaseChatbot: React.FunctionComponent = () => {
 
     const newController = new AbortController();
     setController(newController);
+    setFiles([]);
     setHasStopButton(true);
     try {
       let isSource = false;
@@ -135,25 +140,53 @@ const BaseChatbot: React.FunctionComponent = () => {
         }
 
         const chunk = decoder.decode(value, { stream: true });
-        if (chunk.includes('START_SOURCES_STRING')) {
-          sources.push(chunk);
-          isSource = true;
-        }
-        if (chunk.includes('END_SOURCES_STRING')) {
-          sources.push(chunk);
-          isSource = false;
+
+        // We've seen a START_SOURCES_STRING in a previous chunk, so switch to source mode
+        if (isSource) {
+          const endIdx = chunk.indexOf('END_SOURCES_STRING');
+          if (endIdx !== -1) {
+            // Extract source data, excluding the END_SOURCES_STRING marker
+            const sourceData = chunk.slice(0, endIdx);
+
+            if (sourceData) {
+              sources.push(sourceData);
+            }
+
+            // Process any remaining non-source content after the source block
+            const remainingText = chunk.slice(endIdx + 'END_SOURCES_STRING'.length);
+            if (remainingText) {
+              setCurrentMessage((prevData) => [...prevData, remainingText]);
+            }
+            // Switch to non-source mode
+            isSource = false;
+          }
         } else {
-          if (isSource) {
-            sources.push(chunk);
+          const startIdx = chunk.indexOf('START_SOURCES_STRING');
+          if (startIdx !== -1) {
+            // Switch to source mode and remove the START_SOURCES_STRING marker
+            isSource = true;
+            let sourceData = chunk.slice(startIdx + 'START_SOURCES_STRING'.length);
+            // The end marker may be present in the chunk as well if it's short; check for it
+            const endIdx = chunk.indexOf('END_SOURCES_STRING');
+            if (endIdx !== -1) {
+              sourceData = chunk.slice(startIdx + 'START_SOURCES_STRING'.length, endIdx);
+              isSource = false;
+              // Check for any remaining text in chunk and render it as well
+              const remainingText = chunk.slice(endIdx + 'END_SOURCES_STRING'.length);
+              if (remainingText) {
+                setCurrentMessage((prevData) => [...prevData, remainingText]);
+              }
+            }
+            sources.push(sourceData);
           } else {
+            // Render the non-source data
             setCurrentMessage((prevData) => [...prevData, chunk]);
           }
         }
       }
 
       if (sources && sources.length > 0) {
-        let sourcesString = sources.join('');
-        sourcesString = sourcesString.split('START_SOURCES_STRING')[1].split('END_SOURCES_STRING')[0];
+        const sourcesString = sources.join('');
         const parsedSources: SourceResponse = JSON.parse(sourcesString);
         const formattedSources: Source[] = [];
         parsedSources.content.forEach((source) => {
@@ -203,6 +236,7 @@ const BaseChatbot: React.FunctionComponent = () => {
       role: 'user',
       content: input,
       timestamp: `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`,
+      ...(files && { attachments: files }),
     });
     setMessages(newMessages);
     setCurrentDate(date);
@@ -240,12 +274,74 @@ const BaseChatbot: React.FunctionComponent = () => {
     setHasStopButton(false);
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => {
+  const handleChange = (event: React.ChangeEvent<HTMLDivElement>, value: string) => {
     if (value !== '') {
       setIsSendButtonDisabled(false);
       return;
     }
     setIsSendButtonDisabled(true);
+  };
+
+  // Attachments
+  // --------------------------------------------------------------------------
+  // example of how you can read a text file
+  const readFile = (file: File) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+
+  // handle file drop/selection
+  const handleFile = (fileArr: File[]) => {
+    setIsLoadingFile(true);
+    // any custom validation you may want
+    if (fileArr.length > 2) {
+      setFiles([]);
+      setError({ title: 'Uploaded more than two files', body: 'Upload fewer files' });
+      return;
+    }
+    // this is 200MB in bytes; size is in bytes
+    const anyFileTooBig = fileArr.every((file) => file.size > 200000000);
+    if (anyFileTooBig) {
+      setFiles([]);
+      setError({ title: 'Uploaded a file larger than 200MB.', body: 'Try a uploading a smaller file' });
+      return;
+    }
+
+    const newFiles = fileArr.map((file) => {
+      return {
+        name: file.name,
+        id: getId(),
+      };
+    });
+    setFiles(newFiles);
+
+    fileArr.forEach((file) => {
+      readFile(file)
+        .then((data) => {
+          // eslint-disable-next-line no-console
+          console.log(data);
+          setError(undefined);
+          // this is just for demo purposes, to make the loading state really obvious
+          setTimeout(() => {
+            setIsLoadingFile(false);
+          }, 1000);
+        })
+        .catch((error: DOMException) => {
+          setError({ title: 'Failed to read file', body: error.message });
+        });
+    });
+  };
+
+  const handleAttach = (data: File[]) => {
+    handleFile(data);
+  };
+
+  const onClose = (event: React.MouseEvent, name: string) => {
+    const newFiles = files.filter((file) => file.name !== name);
+    setFiles(newFiles);
   };
 
   return (
@@ -293,15 +389,23 @@ const BaseChatbot: React.FunctionComponent = () => {
         </MessageBox>
       </ChatbotContent>
       <ChatbotFooter>
+        {files && (
+          <div className="file-container">
+            {files.map((file) => (
+              <FileDetailsLabel key={file.name} fileName={file.name} isLoading={isLoadingFile} onClose={onClose} />
+            ))}
+          </div>
+        )}
         <MessageBar
           onSendMessage={handleSend}
           hasMicrophoneButton
-          hasAttachButton={false}
           hasStopButton={hasStopButton}
           handleStopButton={handleStopButton}
           alwayShowSendButton
           onChange={handleChange}
           isSendButtonDisabled={isSendButtonDisabled}
+          handleAttach={handleAttach}
+          hasAttachButton={false}
         />
         <ChatbotFootnote label="Verify all information from this tool. LLMs make mistakes." />
       </ChatbotFooter>
