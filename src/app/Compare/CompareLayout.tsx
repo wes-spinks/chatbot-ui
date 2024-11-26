@@ -270,6 +270,7 @@ export const CompareLayout: React.FunctionComponent = () => {
             onChange={handleChange}
             isSendButtonDisabled={isSendButtonDisabled}
             handleAttach={handleAttach}
+            hasAttachButton={false}
           />
           <ChatbotFootnote label="Verify all information from this tool. LLMs make mistakes." />
         </ChatbotFooter>
