@@ -274,7 +274,7 @@ const BaseChatbot: React.FunctionComponent = () => {
     setHasStopButton(false);
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>, value: string) => {
+  const handleChange = (event: React.ChangeEvent<HTMLDivElement>, value: string) => {
     if (value !== '') {
       setIsSendButtonDisabled(false);
       return;

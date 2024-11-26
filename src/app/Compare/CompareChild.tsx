@@ -35,7 +35,7 @@ interface CompareChildProps {
   error?: ErrorObject;
   setError: (error?: ErrorObject) => void;
   files?: UserFacingFile[];
-  setFiles: (file?: UserFacingFile[]) => void;
+  setFiles: (file: UserFacingFile[]) => void;
 }
 
 const CompareChild: React.FunctionComponent<CompareChildProps> = ({
