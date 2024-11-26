@@ -14,7 +14,7 @@ import {
   MessageBar,
   MessageBox,
   MessageProps,
-} from '@patternfly/virtual-assistant';
+} from '@patternfly/chatbot';
 import { useLoaderData } from 'react-router-dom';
 import { CannedChatbot } from '../types/CannedChatbot';
 import { HeaderDropdown } from '@app/HeaderDropdown/HeaderDropdown';
@@ -24,6 +24,7 @@ import botAvatar from '@app/bgimages/RHCAI-studio-avatar.svg';
 import userAvatar from '@app/bgimages/avatarImg.svg';
 import { Source } from '@app/types/Source';
 import { SourceResponse } from '@app/types/SourceResponse';
+import { UserFacingFile } from '@app/types/UserFacingFile';
 
 const BaseChatbot: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
@@ -38,7 +39,7 @@ const BaseChatbot: React.FunctionComponent = () => {
   const [controller, setController] = React.useState<AbortController>();
   const [currentDate, setCurrentDate] = React.useState<Date>();
   const [hasStopButton, setHasStopButton] = React.useState(false);
-  const [file, setFile] = React.useState<File>();
+  const [files, setFiles] = React.useState<UserFacingFile[]>([]);
   const [isLoadingFile, setIsLoadingFile] = React.useState<boolean>(false);
 
   React.useEffect(() => {
@@ -99,7 +100,7 @@ const BaseChatbot: React.FunctionComponent = () => {
 
     const newController = new AbortController();
     setController(newController);
-    setFile(undefined);
+    setFiles([]);
     setHasStopButton(true);
     try {
       let isSource = false;
@@ -207,7 +208,7 @@ const BaseChatbot: React.FunctionComponent = () => {
       role: 'user',
       content: input,
       timestamp: `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`,
-      ...(file && { attachmentName: file.name }),
+      ...(files && { attachments: files }),
     });
     setMessages(newMessages);
     setCurrentDate(date);
@@ -268,40 +269,51 @@ const BaseChatbot: React.FunctionComponent = () => {
   const handleFile = (fileArr: File[]) => {
     setIsLoadingFile(true);
     // any custom validation you may want
-    if (fileArr.length > 1) {
-      setFile(undefined);
-      setError({ title: 'Uploaded more than one file', body: 'Upload only one file' });
+    if (fileArr.length > 2) {
+      setFiles([]);
+      setError({ title: 'Uploaded more than two files', body: 'Upload fewer files' });
       return;
     }
     // this is 200MB in bytes; size is in bytes
-    if (fileArr[0].size > 200000000) {
-      setFile(undefined);
-      setError({ title: 'File is larger than 200MB.', body: 'Try a smaller file' });
+    const anyFileTooBig = fileArr.every((file) => file.size > 200000000);
+    if (anyFileTooBig) {
+      setFiles([]);
+      setError({ title: 'Uploaded a file larger than 200MB.', body: 'Try a uploading a smaller file' });
       return;
     }
 
-    readFile(fileArr[0])
-      .then((data) => {
-        // eslint-disable-next-line no-console
-        console.log(data);
-        setFile(fileArr[0]);
-        setError(undefined);
-        // this is just for demo purposes, to make the loading state really obvious
-        setTimeout(() => {
-          setIsLoadingFile(false);
-        }, 1000);
-      })
-      .catch((error: DOMException) => {
-        setError({ title: 'Failed to read file', body: error.message });
-      });
+    const newFiles = fileArr.map((file) => {
+      return {
+        name: file.name,
+        id: getId(),
+      };
+    });
+    setFiles(newFiles);
+
+    fileArr.forEach((file) => {
+      readFile(file)
+        .then((data) => {
+          // eslint-disable-next-line no-console
+          console.log(data);
+          setError(undefined);
+          // this is just for demo purposes, to make the loading state really obvious
+          setTimeout(() => {
+            setIsLoadingFile(false);
+          }, 1000);
+        })
+        .catch((error: DOMException) => {
+          setError({ title: 'Failed to read file', body: error.message });
+        });
+    });
   };
 
   const handleAttach = (data: File[]) => {
     handleFile(data);
   };
 
-  const onClose = () => {
-    setFile(undefined);
+  const onClose = (event: React.MouseEvent, name: string) => {
+    const newFiles = files.filter((file) => file.name !== name);
+    setFiles(newFiles);
   };
 
   return (
@@ -349,9 +361,11 @@ const BaseChatbot: React.FunctionComponent = () => {
         </MessageBox>
       </ChatbotContent>
       <ChatbotFooter>
-        {file && (
-          <div>
-            <FileDetailsLabel fileName={file.name} isLoading={isLoadingFile} onClose={onClose} />
+        {files && (
+          <div className="file-container">
+            {files.map((file) => (
+              <FileDetailsLabel key={file.name} fileName={file.name} isLoading={isLoadingFile} onClose={onClose} />
+            ))}
           </div>
         )}
         <MessageBar

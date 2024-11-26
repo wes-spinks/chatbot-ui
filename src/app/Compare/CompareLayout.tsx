@@ -2,11 +2,13 @@ import { CompareChild } from '@app/Compare/CompareChild';
 import { CannedChatbot } from '@app/types/CannedChatbot';
 import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { css } from '@patternfly/react-styles';
-import { ChatbotFooter, ChatbotFootnote, FileDetailsLabel, MessageBar } from '@patternfly/virtual-assistant';
+import { ChatbotFooter, ChatbotFootnote, FileDetailsLabel, MessageBar } from '@patternfly/chatbot';
 import * as React from 'react';
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router-dom';
 import { useChildStatus } from './ChildStatusProvider';
 import { ErrorObject } from '@app/types/ErrorObject';
+import { UserFacingFile } from '@app/types/UserFacingFile';
+import { getId } from '@app/utils/utils';
 
 export const CompareLayout: React.FunctionComponent = () => {
   // information from api
@@ -24,7 +26,7 @@ export const CompareLayout: React.FunctionComponent = () => {
   const [showFirstChatbot, setShowFirstChatbot] = React.useState(true);
   const [showSecondChatbot, setShowSecondChatbot] = React.useState(false);
   const [hasStopButton, setHasStopButton] = React.useState(false);
-  const [file, setFile] = React.useState<File>();
+  const [files, setFiles] = React.useState<UserFacingFile[]>([]);
   const [isLoadingFile, setIsLoadingFile] = React.useState<boolean>(false);
   const [error, setError] = React.useState<ErrorObject>();
 
@@ -146,40 +148,51 @@ export const CompareLayout: React.FunctionComponent = () => {
   const handleFile = (fileArr: File[]) => {
     setIsLoadingFile(true);
     // any custom validation you may want
-    if (fileArr.length > 1) {
-      setFile(undefined);
-      setError({ title: 'Uploaded more than one file', body: 'Upload only one file' });
+    if (fileArr.length > 2) {
+      setFiles([]);
+      setError({ title: 'Uploaded more than two files', body: 'Upload fewer files' });
       return;
     }
     // this is 200MB in bytes; size is in bytes
-    if (fileArr[0].size > 200000000) {
-      setFile(undefined);
-      setError({ title: 'File is larger than 200MB.', body: 'Try a smaller file' });
+    const anyFileTooBig = fileArr.every((file) => file.size > 200000000);
+    if (anyFileTooBig) {
+      setFiles([]);
+      setError({ title: 'Uploaded a file larger than 200MB.', body: 'Try a uploading a smaller file' });
       return;
     }
 
-    readFile(fileArr[0])
-      .then((data) => {
-        // eslint-disable-next-line no-console
-        console.log(data);
-        setFile(fileArr[0]);
-        setError(undefined);
-        // this is just for demo purposes, to make the loading state really obvious
-        setTimeout(() => {
-          setIsLoadingFile(false);
-        }, 1000);
-      })
-      .catch((error: DOMException) => {
-        setError({ title: 'Failed to read file', body: error.message });
-      });
+    const newFiles = fileArr.map((file) => {
+      return {
+        name: file.name,
+        id: getId(),
+      };
+    });
+    setFiles(newFiles);
+
+    fileArr.forEach((file) => {
+      readFile(file)
+        .then((data) => {
+          // eslint-disable-next-line no-console
+          console.log(data);
+          setError(undefined);
+          // this is just for demo purposes, to make the loading state really obvious
+          setTimeout(() => {
+            setIsLoadingFile(false);
+          }, 1000);
+        })
+        .catch((error: DOMException) => {
+          setError({ title: 'Failed to read file', body: error.message });
+        });
+    });
   };
 
   const handleAttach = (data: File[]) => {
     handleFile(data);
   };
 
-  const onClose = () => {
-    setFile(undefined);
+  const onClose = (event: React.MouseEvent, name: string) => {
+    const newFiles = files.filter((file) => file.name !== name);
+    setFiles(newFiles);
   };
 
   return (
@@ -218,8 +231,8 @@ export const CompareLayout: React.FunctionComponent = () => {
               order="first"
               error={error}
               setError={setError}
-              file={file}
-              setFile={setFile}
+              files={files}
+              setFiles={setFiles}
             />
           </div>
           <div className={css('compare-item', !showSecondChatbot ? 'compare-item-hidden' : undefined)}>
@@ -235,15 +248,17 @@ export const CompareLayout: React.FunctionComponent = () => {
               order="second"
               error={error}
               setError={setError}
-              file={file}
-              setFile={setFile}
+              files={files}
+              setFiles={setFiles}
             />
           </div>
         </div>
         <ChatbotFooter>
-          {file && (
-            <div>
-              <FileDetailsLabel fileName={file.name} isLoading={isLoadingFile} onClose={onClose} />
+          {files && (
+            <div className="file-container">
+              {files.map((file) => (
+                <FileDetailsLabel key={file.name} fileName={file.name} isLoading={isLoadingFile} onClose={onClose} />
+              ))}
             </div>
           )}
           <MessageBar

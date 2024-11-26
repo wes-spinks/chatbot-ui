@@ -13,6 +13,6 @@ module.exports = {
       __dirname,
       'node_modules/@patternfly/react-inline-edit-extension/node_modules/@patternfly/react-styles/css',
     ),
-    path.resolve(__dirname, 'node_modules/@patternfly/virtual-assistant/dist/css/main.css'),
+    path.resolve(__dirname, 'node_modules/@patternfly/chatbot/dist/css/main.css'),
   ],
 };

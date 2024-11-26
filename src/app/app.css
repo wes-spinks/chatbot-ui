@@ -365,3 +365,8 @@ pf-v6-c-page__main-container.pf-m-fill {
     --pf-v6-c-nav--PaddingInlineStart: 0.8rem;
   }
 }
+
+.file-container {
+  display: flex;
+  gap: var(--pf-t--global--spacer--md);
+}

@@ -10,7 +10,7 @@ import {
   Message,
   MessageBox,
   MessageProps,
-} from '@patternfly/virtual-assistant';
+} from '@patternfly/chatbot';
 import { CannedChatbot } from '../types/CannedChatbot';
 import { HeaderDropdown } from '@app/HeaderDropdown/HeaderDropdown';
 import { ERROR_TITLE, getId } from '@app/utils/utils';
@@ -20,6 +20,7 @@ import userAvatar from '@app/bgimages/avatarImg.svg';
 import { Source } from '@app/types/Source';
 import { SourceResponse } from '@app/types/SourceResponse';
 import { ErrorObject } from '@app/types/ErrorObject';
+import { UserFacingFile } from '@app/types/UserFacingFile';
 
 interface CompareChildProps {
   chatbot: CannedChatbot;
@@ -33,8 +34,8 @@ interface CompareChildProps {
   order: string;
   error?: ErrorObject;
   setError: (error?: ErrorObject) => void;
-  file?: File;
-  setFile: (file?: File) => void;
+  files?: UserFacingFile[];
+  setFiles: (file?: UserFacingFile[]) => void;
 }
 
 const CompareChild: React.FunctionComponent<CompareChildProps> = ({
@@ -49,8 +50,8 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
   order,
   error,
   setError,
-  file,
-  setFile,
+  files,
+  setFiles,
 }: CompareChildProps) => {
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(chatbot);
@@ -89,7 +90,7 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
       role: 'user',
       content: input,
       timestamp: `${date?.toLocaleDateString()} ${date?.toLocaleTimeString()}`,
-      ...(file && { attachmentName: file.name }),
+      ...(files && { attachments: files }),
     });
     setMessages(newMessages);
     setCurrentDate(date);
@@ -159,7 +160,7 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
     try {
       let isSource = false;
 
-      setFile(undefined);
+      setFiles([]);
 
       const response = await fetch(url, {
         method: 'POST',

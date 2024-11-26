@@ -121,8 +121,6 @@ With that in place, you can use the values in your code like `console.log(proces
 
 Lets make the port that we run on configurable.
 
-Add a button to stop a streaming response -> filed Ticket with @patternfly/virtual-assistant
-
 (Infra) Set the Registry Secrets at the org level
 
 I will say (and we can sync about this if it does not make sense), we will need to be able to dynamically specify the backend's base url, since this is going to be a demo deployed on openshift where that URL will be auto generated.
