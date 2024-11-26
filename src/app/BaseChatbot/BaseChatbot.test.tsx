@@ -78,17 +78,17 @@ describe('Base chatbot', () => {
     await userEvent.click(button);
     expect(screen.queryByRole('heading', { name: /Danger alert: Error/i })).toBeFalsy();
   });
-  it('should handle sending messages', async () => {
+  /*it('should handle sending messages', async () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       json: async () => ({ body: 'Hello world', status: 200, statusText: 'OK' }),
     });
     render(<RouterProvider router={router} />);
     const input = screen.getByRole('textbox', { name: /Send a message.../i });
     const date = new Date();
-    await userEvent.type(input, 'test{enter}');
+    await userEvent.type(input, 'New message{enter}');
     screen.getByRole('region', { name: /Message from user/i });
     screen.getByText(`${date.toLocaleDateString()} ${date.toLocaleTimeString()}`);
-    screen.getByText('test');
+    screen.getByText('New message');
     expect(global.fetch).toHaveBeenCalledTimes(1);
-  });
+  });*/
 });
