@@ -21,10 +21,8 @@ import { ERROR_TITLE, getId } from '@app/utils/utils';
 import { Button } from '@patternfly/react-core';
 import botAvatar from '@app/bgimages/RHCAI-studio-avatar.svg';
 import userAvatar from '@app/bgimages/avatarImg.svg';
-
-interface Source {
-  link: string;
-}
+import { Source } from '@app/types/Source';
+import { SourceResponse } from '@app/types/SourceResponse';
 
 const BaseChatbot: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
@@ -72,13 +70,17 @@ const BaseChatbot: React.FunctionComponent = () => {
 
   const handleError = (e) => {
     console.error(e);
-    const title = ERROR_TITLE;
-    const body = ERROR_BODY;
+    const title = ERROR_TITLE[e];
+    const body = ERROR_BODY[e];
     let newError;
     if (title && body) {
       newError = { title: ERROR_TITLE[e], body: ERROR_BODY[e] };
     } else {
-      newError = { title: 'Error', body: e.message };
+      if ('message' in e) {
+        newError = { title: 'Error', body: e.message };
+      } else {
+        newError = { title: 'Error', body: e };
+      }
     }
     setError(newError);
     // make announcement to assistive devices that there was an error
@@ -133,9 +135,13 @@ const BaseChatbot: React.FunctionComponent = () => {
         }
 
         const chunk = decoder.decode(value, { stream: true });
-        if (chunk.includes('Sources used to generate this content')) {
+        if (chunk.includes('START_SOURCES_STRING')) {
           sources.push(chunk);
           isSource = true;
+        }
+        if (chunk.includes('END_SOURCES_STRING')) {
+          sources.push(chunk);
+          isSource = false;
         } else {
           if (isSource) {
             sources.push(chunk);
@@ -145,11 +151,14 @@ const BaseChatbot: React.FunctionComponent = () => {
         }
       }
 
-      if (sources) {
-        const sourceLinks = sources.join('').split('Sources used to generate this content:\n')[1];
-        const sourceLinksArr = sourceLinks.split('\n').filter((source) => source !== '');
+      if (sources && sources.length > 0) {
+        let sourcesString = sources.join('');
+        sourcesString = sourcesString.split('START_SOURCES_STRING')[1].split('END_SOURCES_STRING')[0];
+        const parsedSources: SourceResponse = JSON.parse(sourcesString);
         const formattedSources: Source[] = [];
-        sourceLinksArr.forEach((source) => formattedSources.push({ link: source }));
+        parsedSources.content.forEach((source) => {
+          formattedSources.push({ link: source.metadata.source, body: source.text });
+        });
         setController(newController);
         return formattedSources;
       }
