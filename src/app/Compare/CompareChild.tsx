@@ -244,8 +244,7 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
       }
 
       if (sources && sources.length > 0) {
-        let sourcesString = sources.join('');
-        sourcesString = sourcesString.replace(/START_SOURCES_STRING|END_SOURCES_STRING/g, '').trim();
+        const sourcesString = sources.join('');
         const parsedSources: SourceResponse = JSON.parse(sourcesString);
         const formattedSources: Source[] = [];
         parsedSources.content.forEach((source) => {
