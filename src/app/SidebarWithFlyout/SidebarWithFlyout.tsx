@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Brand, Nav, NavItem, NavList, PageSidebar } from '@patternfly/react-core';
 import logo from '@app/bgimages/Logo-Red_Hat-Composer_AI_Studio-A-Standard-RGB.svg';
 import logoDark from '@app/bgimages/Logo-Red_Hat-Composer_AI_Studio-A-Reverse.svg';
-import { FlyoutHeader } from '@app/FlyoutHeader.tsx/FlyoutHeader';
-import { FlyoutStartScreen } from '@app/FlyoutStartScreen.tsx/FlyoutStartScreen';
 import { FlyoutMenu } from './FlyoutMenu';
 import { NavLink } from 'react-router-dom';
+import { FlyoutWizardProvider } from '@app/FlyoutWizard/FlyoutWizardContext';
+import { FlyoutList } from '@app/FlyoutList/FlyoutList';
+import { FlyoutWizard } from '@app/FlyoutWizard/FlyoutWizard';
+import { FlyoutForm } from '@app/FlyoutForm/FlyoutForm';
 
 export const SidebarWithFlyout: React.FunctionComponent = () => {
   const [sidebarHeight, setSidebarHeight] = useState(0);
@@ -39,13 +41,51 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
     }
   }, [visibleFlyout]);
 
-  /*const toggleFlyout = (e) => {
+  const toggleFlyout = (e) => {
     if (visibleFlyout === e.target.innerText) {
       setVisibleFlyout(null);
     } else {
       setVisibleFlyout(e.target.innerText);
     }
+  };
+
+  /*const FLYOUT_CONTENT = {
+    Assistants: {
+      title: 'Create your first assistant',
+      subtitle: 'Work smarter and faster with tailored assistance',
+      primaryButtonText: 'Create assistant',
+    },
   };*/
+
+  const renderContent = (visibleFlyout) => {
+    if (visibleFlyout === 'Assistants') {
+      return (
+        <FlyoutWizardProvider>
+          <FlyoutWizard
+            steps={[
+              /*<FlyoutStartScreen
+                key="assistant-start"
+                title={FLYOUT_CONTENT[visibleFlyout].title}
+                subtitle={FLYOUT_CONTENT[visibleFlyout].subtitle}
+                primaryButtonText={FLYOUT_CONTENT[visibleFlyout].primaryButtonText}
+                header="Assistants"
+                hideFlyout={() => setVisibleFlyout(null)}
+              />,*/
+              <FlyoutList
+                key="assistant-list"
+                hideFlyout={() => setVisibleFlyout(null)}
+                buttonText="New assistant"
+                typeWordPlural="assistants"
+                title={visibleFlyout}
+              />,
+              <FlyoutForm key="assistant-form" header="New assistant" hideFlyout={() => setVisibleFlyout(null)} />,
+            ]}
+          />
+        </FlyoutWizardProvider>
+      );
+    }
+    return;
+  };
 
   return (
     <PageSidebar>
@@ -64,14 +104,6 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
             <NavItem onClick={() => setVisibleFlyout(null)}>
               <NavLink to="/">Home</NavLink>
             </NavItem>
-            {/*<NavItem
-              component="button"
-              onClick={toggleFlyout}
-              aria-haspopup="dialog"
-              aria-expanded={visibleFlyout === 'Chats'}
-            >
-              Chats
-            </NavItem>
             <NavItem
               component="button"
               onClick={toggleFlyout}
@@ -79,7 +111,7 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
               aria-expanded={visibleFlyout === 'Assistants'}
             >
               Assistants
-            </NavItem>*/}
+            </NavItem>
           </NavList>
         </Nav>
         {/* Flyout menu */}
@@ -90,12 +122,7 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
             height={sidebarHeight}
             hideFlyout={() => setVisibleFlyout(null)}
           >
-            <FlyoutHeader title={visibleFlyout} hideFlyout={() => setVisibleFlyout(null)} />
-            <FlyoutStartScreen
-              title="Create your first assistant"
-              subtitle="Work smarter and faster with tailored assistance"
-              primaryButtonText="Create assistant"
-            />
+            {renderContent(visibleFlyout)}
           </FlyoutMenu>
         )}
       </div>
