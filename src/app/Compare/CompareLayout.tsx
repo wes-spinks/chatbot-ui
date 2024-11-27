@@ -9,6 +9,7 @@ import { useChildStatus } from './ChildStatusProvider';
 import { ErrorObject } from '@app/types/ErrorObject';
 import { UserFacingFile } from '@app/types/UserFacingFile';
 import { getId } from '@app/utils/utils';
+import { useAppData } from '@app/AppData/AppDataContext';
 
 export const CompareLayout: React.FunctionComponent = () => {
   // information from api
@@ -37,6 +38,8 @@ export const CompareLayout: React.FunctionComponent = () => {
 
   // context, used for stop buttons
   const { status } = useChildStatus();
+  // context, used for assistant selection
+  const { flyoutMenuSelectedChatbot } = useAppData();
 
   React.useEffect(() => {
     document.title = `Red Hat Composer AI Studio | Compare`;
@@ -45,7 +48,7 @@ export const CompareLayout: React.FunctionComponent = () => {
         (chatbot) => chatbot.name === assistants[0] || chatbot.name === assistants[1],
       );
       if (actualChatbots.length === 2) {
-        setFirstChatbot(actualChatbots[0]);
+        setFirstChatbot(flyoutMenuSelectedChatbot ?? actualChatbots[0]);
         setSecondChatbot(actualChatbots[1]);
       } else {
         // assistants are not real
@@ -74,6 +77,12 @@ export const CompareLayout: React.FunctionComponent = () => {
       window.removeEventListener('resize', updateChatbotVisibility);
     };
   }, []);
+
+  React.useEffect(() => {
+    if (flyoutMenuSelectedChatbot) {
+      setFirstChatbot(flyoutMenuSelectedChatbot);
+    }
+  }, [flyoutMenuSelectedChatbot]);
 
   React.useEffect(() => {
     if (status) {

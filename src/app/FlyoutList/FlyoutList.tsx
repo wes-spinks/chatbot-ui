@@ -25,7 +25,7 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
   const [filteredItems, setFilteredItems] = React.useState<CannedChatbot[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const { nextStep } = useFlyoutWizard();
-  const { updateFlyoutMenuSelectedChatbot } = useAppData();
+  const { flyoutMenuSelectedChatbot, updateFlyoutMenuSelectedChatbot } = useAppData();
   const header = (
     <div className="title-with-label">
       {title} <Label variant="outline">{items.length}</Label>
@@ -64,7 +64,12 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
     return (
       <MenuList>
         {filteredItems.map((item) => (
-          <MenuItem className="pf-chatbot__menu-item" itemId={item.name} key={item.name}>
+          <MenuItem
+            className="pf-chatbot__menu-item"
+            itemId={item.name}
+            key={item.name}
+            isSelected={item.name === flyoutMenuSelectedChatbot?.name}
+          >
             {item.displayName}
           </MenuItem>
         ))}
@@ -73,7 +78,6 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
   };
 
   const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value) => {
-    console.log(value);
     if (filteredItems.length > 0) {
       const newChatbot = items.filter((item) => item.name === value)[0];
       console.log(newChatbot);
@@ -116,7 +120,7 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
                   <MenuItem key="no-items">No results found</MenuItem>
                 </MenuList>
               )}
-            </MenuContent>{' '}
+            </MenuContent>
           </Menu>
         </div>
       )}
