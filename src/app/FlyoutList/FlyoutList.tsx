@@ -1,3 +1,4 @@
+import { useAppData } from '@app/AppData/AppDataContext';
 import { FlyoutFooter } from '@app/FlyoutFooter/FlyoutFooter';
 import { FlyoutHeader } from '@app/FlyoutHeader.tsx/FlyoutHeader';
 import { FlyoutLoading } from '@app/FlyoutLoading/FlyoutLoading';
@@ -23,7 +24,8 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
   const [items, setItems] = React.useState<CannedChatbot[]>([]);
   const [filteredItems, setFilteredItems] = React.useState<CannedChatbot[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const { nextStep, prevStep } = useFlyoutWizard();
+  const { nextStep } = useFlyoutWizard();
+  const { updateFlyoutMenuSelectedChatbot } = useAppData();
   const header = (
     <div className="title-with-label">
       {title} <Label variant="outline">{items.length}</Label>
@@ -41,7 +43,6 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
       }
 
       const data = await response.json();
-      console.log('Assistants', data);
       setItems(data);
       setFilteredItems(data);
       setIsLoading(false);
@@ -52,8 +53,7 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
   };
 
   const loadAssistants = async () => {
-    const data = await getAssistants();
-    console.log(data);
+    await getAssistants();
   };
 
   React.useEffect(() => {
@@ -72,13 +72,17 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
     );
   };
 
-  const onSelectActiveItem = () => {};
-  const activeItemId = '1';
+  const onSelect = (_event: React.MouseEvent<Element, MouseEvent> | undefined, value) => {
+    console.log(value);
+    if (filteredItems.length > 0) {
+      const newChatbot = items.filter((item) => item.name === value)[0];
+      console.log(newChatbot);
+      updateFlyoutMenuSelectedChatbot(newChatbot);
+    }
+  };
 
   const findMatchingItems = (targetValue: string) => {
     const matchingElements = items.filter((item) => item.displayName.toLowerCase().includes(targetValue.toLowerCase()));
-
-    console.log(matchingElements);
     return matchingElements;
   };
 
@@ -103,7 +107,7 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
             onChange={(_event, value) => handleTextInputChange(value)}
             placeholder={`Search ${typeWordPlural}...`}
           />
-          <Menu className="flyout-list-menu" isPlain onSelect={onSelectActiveItem} activeItemId={activeItemId}>
+          <Menu className="flyout-list-menu" isPlain onSelect={onSelect}>
             <MenuContent>
               {filteredItems.length > 0 ? (
                 buildMenu()

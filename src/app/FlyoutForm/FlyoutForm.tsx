@@ -1,21 +1,20 @@
 import { FlyoutError } from '@app/FlyoutError/FlyoutError';
 import { FlyoutFooter } from '@app/FlyoutFooter/FlyoutFooter';
 import { FlyoutHeader } from '@app/FlyoutHeader.tsx/FlyoutHeader';
-import { FlyoutStartScreen } from '@app/FlyoutStartScreen/FlyoutStartScreen';
 import { useFlyoutWizard } from '@app/FlyoutWizard/FlyoutWizardContext';
 import { ErrorObject } from '@app/types/ErrorObject';
 import {
-  Dropdown,
-  DropdownItem,
-  DropdownList,
-  FileUpload,
+  //Dropdown,
+  //DropdownItem,
+  //DropdownList,
+  //FileUpload,
   Form,
   FormGroup,
   FormHelperText,
   HelperText,
   HelperTextItem,
-  MenuToggle,
-  MenuToggleElement,
+  //MenuToggle,
+  //MenuToggleElement,
   TextArea,
   TextInput,
 } from '@patternfly/react-core';
@@ -29,25 +28,25 @@ interface FlyoutFormProps {
 export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, hideFlyout }: FlyoutFormProps) => {
   const [title, setTitle] = React.useState('');
   const [displayName, setDisplayName] = React.useState('');
-  const [model, setModel] = React.useState('');
+  //const [model, setModel] = React.useState('');
   const [instructions, setInstructions] = React.useState('');
-  const [icon, setIcon] = React.useState('');
-  const [filename, setFilename] = React.useState('');
+  //const [icon, setIcon] = React.useState('');
+  //const [filename, setFilename] = React.useState('');
   const [error, setError] = React.useState<ErrorObject>();
   const { nextStep, prevStep } = useFlyoutWizard();
 
-  const llmConnectionId = '66edae13e03073de9ef24204'; // how do i get these
+  const llmConnectionId = '66edae13e03073de9ef24204'; // fixme how do i get these
   const retrieverConnectionId = '66f3fbffd7e04770c03ee123';
 
-  const handleFileInputChange = (_, file: File) => {
+  /*const handleFileInputChange = (_, file: File) => {
     setFilename(file.name);
-  };
+  };*/
 
-  const handleClear = () => {
+  /*const handleClear = () => {
     setFilename('');
     setIcon('');
-  };
-  const [isOpen, setIsOpen] = React.useState(false);
+  };*/
+  // const [isOpen, setIsOpen] = React.useState(false);
 
   const handleTitleChange = (_event, title: string) => {
     setTitle(title);
@@ -57,21 +56,21 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
     setDisplayName(name);
   };
 
-  const handleModelChange = (_event, value: string | number | undefined) => {
+  /*const handleModelChange = (_event, value: string | number | undefined) => {
     if (value && typeof value === 'string') {
       setModel(value);
       return;
     }
     setModel('');
-  };
+  };*/
 
   const handleInstructionsChange = (_event, instructions: string) => {
     setInstructions(instructions);
   };
 
-  const onToggleClick = () => {
+  /* const onToggleClick = () => {
     setIsOpen(!isOpen);
-  };
+  };*/
 
   const createAssistant = async () => {
     const url =
@@ -95,12 +94,12 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
       });
 
       if (!response.ok) {
+        // fixme use error handling used elsewhere
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
       const data = await response.json();
       return data;
-      console.log('Assistant created successfully:', data);
     } catch (error) {
       if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
         setError({ title: 'Error creating assistant', body: error.message });
@@ -113,7 +112,6 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
 
   const onClick = async () => {
     const data = await createAssistant();
-    console.log(data);
     if (data) {
       nextStep();
     }

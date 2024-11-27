@@ -2,26 +2,21 @@ import * as React from 'react';
 
 interface FlyoutWizardContextType {
   currentStep: number;
-  data: any;
   nextStep: () => void;
   prevStep: () => void;
   goToStep: (step: number) => void;
-  updateData: (newData: any) => void;
 }
 
 const FlyoutWizardContext = React.createContext<FlyoutWizardContextType | undefined>(undefined);
 
 export const FlyoutWizardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentStep, setCurrentStep] = React.useState(0);
-  const [data, setData] = React.useState({});
-
   const nextStep = () => setCurrentStep((prev) => prev + 1);
   const prevStep = () => setCurrentStep((prev) => prev - 1);
   const goToStep = (step: number) => setCurrentStep(step);
-  const updateData = (newData: any) => setData((prev) => ({ ...prev, ...newData }));
 
   return (
-    <FlyoutWizardContext.Provider value={{ currentStep, data, nextStep, prevStep, goToStep, updateData }}>
+    <FlyoutWizardContext.Provider value={{ currentStep, nextStep, prevStep, goToStep }}>
       {children}
     </FlyoutWizardContext.Provider>
   );

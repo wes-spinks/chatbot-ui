@@ -25,9 +25,11 @@ import userAvatar from '@app/bgimages/avatarImg.svg';
 import { Source } from '@app/types/Source';
 import { SourceResponse } from '@app/types/SourceResponse';
 import { UserFacingFile } from '@app/types/UserFacingFile';
+import { useAppData } from '@app/AppData/AppDataContext';
 
 const BaseChatbot: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
+  const { flyoutMenuSelectedChatbot } = useAppData();
   const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(true);
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
@@ -35,7 +37,7 @@ const BaseChatbot: React.FunctionComponent = () => {
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
   const [error, setError] = React.useState<{ title: string; body: string }>();
   const [announcement, setAnnouncement] = React.useState<string>();
-  const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(chatbots[0]);
+  const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(flyoutMenuSelectedChatbot ?? chatbots[0]);
   const [controller, setController] = React.useState<AbortController>();
   const [currentDate, setCurrentDate] = React.useState<Date>();
   const [hasStopButton, setHasStopButton] = React.useState(false);
@@ -49,6 +51,12 @@ const BaseChatbot: React.FunctionComponent = () => {
   React.useEffect(() => {
     document.title = `Red Hat Composer AI Studio | ${currentChatbot?.name}`;
   }, [currentChatbot]);
+
+  React.useEffect(() => {
+    if (flyoutMenuSelectedChatbot) {
+      setCurrentChatbot(flyoutMenuSelectedChatbot);
+    }
+  }, [flyoutMenuSelectedChatbot]);
 
   React.useEffect(() => {
     document.title = `Red Hat Composer AI Studio | ${currentChatbot?.name}${announcement ? ` - ${announcement}` : ''}`;
