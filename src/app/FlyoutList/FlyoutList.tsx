@@ -102,7 +102,7 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
             key={item.name}
             isSelected={item.name === flyoutMenuSelectedChatbot?.name}
           >
-            {item.displayName}
+            {item.displayName ?? item.name}
           </MenuItem>
         ))}
       </MenuList>
@@ -120,7 +120,10 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
   };
 
   const findMatchingItems = (targetValue: string) => {
-    const matchingElements = items.filter((item) => item.displayName.toLowerCase().includes(targetValue.toLowerCase()));
+    const matchingElements = items.filter((item) => {
+      const name = item.displayName ?? item.name;
+      return name.toLowerCase().includes(targetValue.toLowerCase());
+    });
     return matchingElements;
   };
 

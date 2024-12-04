@@ -51,6 +51,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
   const [isRetrieverDropdownOpen, setIsRetrieverDropdownOpen] = React.useState(false);
   const [isLLMDropdownOpen, setIsLLMDropdownOpen] = React.useState(false);
   const [selectedLLM, setSelectedLLM] = React.useState<LLMAPIResponse>();
+  const [prompt, setPrompt] = React.useState<string>();
   const { nextStep, prevStep } = useFlyoutWizard();
 
   const ERROR_BODY = {
@@ -149,6 +150,10 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
     setDescription(newDescription);
   };
 
+  const handlePromptChange = (_event, newPrompt: string) => {
+    setPrompt(newPrompt);
+  };
+
   const onRetrieverToggleClick = () => {
     setIsRetrieverDropdownOpen(!isRetrieverDropdownOpen);
   };
@@ -166,6 +171,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
       description: description,
       llmConnectionId: selectedLLM?.id,
       retrieverConnectionId: selectedRetriever?.id,
+      userPrompt: prompt,
     };
 
     try {
@@ -195,7 +201,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
 
   const onClick = async () => {
     setError(undefined);
-    if (loadedFormFields && title !== '' && selectedLLM && selectedRetriever) {
+    if (loadedFormFields && title !== '' && selectedLLM) {
       const data = await createAssistant();
       if (data) {
         nextStep();
@@ -225,7 +231,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
               />
               <FormHelperText>
                 <HelperText>
-                  <HelperTextItem>Describe what a user can do with your assistant</HelperTextItem>
+                  <HelperTextItem>Unique name for your assistant</HelperTextItem>
                 </HelperText>
               </FormHelperText>
             </FormGroup>
@@ -243,17 +249,17 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
                 </HelperText>
               </FormHelperText>
             </FormGroup>
-            <FormGroup isRequired label="Retriever ID" fieldId="flyout-form-model">
+            <FormGroup label="Knowledge source" fieldId="flyout-form-model">
               <Dropdown
                 isOpen={isRetrieverDropdownOpen}
                 onSelect={handleRetrieverChange}
                 onOpenChange={(isOpen: boolean) => setIsRetrieverDropdownOpen(isOpen)}
-                ouiaId="RetrieverIdDropdown"
+                ouiaId="KnowledgeSourceDropdown"
                 shouldFocusToggleOnSelect
                 onOpenChangeKeys={['Escape']}
                 toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                   <MenuToggle ref={toggleRef} onClick={onRetrieverToggleClick} isExpanded={isRetrieverDropdownOpen}>
-                    {selectedRetriever ? selectedRetriever.description : 'Choose a retriever ID'}
+                    {selectedRetriever ? selectedRetriever.description : 'Choose a knowledge source'}
                   </MenuToggle>
                 )}
                 popperProps={{ appendTo: 'inline' }}
@@ -270,18 +276,28 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
                   ))}
                 </DropdownList>
               </Dropdown>
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem>
+                    Used for{' '}
+                    <a href="https://www.redhat.com/en/topics/ai/what-is-retrieval-augmented-generation">
+                      Retrieval Augmented Generation (RAG)
+                    </a>
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
             </FormGroup>
-            <FormGroup isRequired label="LLM ID" fieldId="flyout-form-model">
+            <FormGroup isRequired label="Model" fieldId="flyout-form-model">
               <Dropdown
                 isOpen={isLLMDropdownOpen}
                 onSelect={handleLLMChange}
                 onOpenChange={(isOpen: boolean) => setIsLLMDropdownOpen(isOpen)}
-                ouiaId="LLMIDDropdown"
+                ouiaId="ModelDropdown"
                 shouldFocusToggleOnSelect
                 onOpenChangeKeys={['Escape']}
                 toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                   <MenuToggle ref={toggleRef} onClick={onLLMToggleClick} isExpanded={isLLMDropdownOpen}>
-                    {selectedLLM ? selectedLLM.description : 'Choose an LLM ID'}
+                    {selectedLLM ? selectedLLM.description : 'Choose an model'}
                   </MenuToggle>
                 )}
                 popperProps={{ appendTo: 'inline' }}
@@ -295,9 +311,9 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
                 </DropdownList>
               </Dropdown>
             </FormGroup>
-            <FormGroup fieldId="flyout-form-instructions" label="Description">
+            <FormGroup fieldId="flyout-form-description" label="Description">
               <TextArea
-                id="flyout-form-instructions"
+                id="flyout-form-description"
                 value={description}
                 onChange={handleDescriptionChange}
                 aria-label="Text area for assistant description"
@@ -309,12 +325,29 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
                 </HelperText>
               </FormHelperText>
             </FormGroup>
+            <FormGroup fieldId="flyout-form-prompts" label="Prompt">
+              <TextArea
+                id="flyout-form-prompt"
+                value={prompt}
+                onChange={handlePromptChange}
+                aria-label="Text area for sample prompt"
+                resizeOrientation="vertical"
+              />
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem>
+                    A set of instructions that will lead a model to generate accurate, relevant, and contextually
+                    appropriate responses.
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            </FormGroup>
           </Form>
         )}
       </div>
       {!error && (
         <FlyoutFooter
-          isPrimaryButtonDisabled={title === '' || !selectedLLM || !selectedRetriever}
+          isPrimaryButtonDisabled={title === '' || !selectedLLM}
           primaryButton="Create assistant"
           onPrimaryButtonClick={onClick}
           secondaryButton="Cancel"

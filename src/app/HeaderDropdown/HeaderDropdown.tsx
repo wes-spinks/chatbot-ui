@@ -30,9 +30,10 @@ export const HeaderDropdown: React.FunctionComponent<HeaderDropdownProps> = ({
   };
 
   const findMatchingElements = (chatbots: CannedChatbot[], targetValue: string) => {
-    const matchingElements = chatbots.filter((chatbot) =>
-      chatbot.displayName.toLowerCase().includes(targetValue.toLowerCase()),
-    );
+    const matchingElements = chatbots.filter((chatbot) => {
+      const name = chatbot.displayName ?? chatbot.name;
+      return name.toLowerCase().includes(targetValue.toLowerCase());
+    });
     return matchingElements;
   };
 
@@ -85,11 +86,12 @@ export const HeaderDropdown: React.FunctionComponent<HeaderDropdownProps> = ({
         {visibleAssistants && visibleAssistants?.length > 0 ? (
           visibleAssistants?.map((chatbot) => (
             <DropdownItem
-              key={chatbot.displayName}
+              key={chatbot.name}
               value={chatbot}
-              isSelected={selectedChatbot?.displayName === chatbot.displayName}
+              isSelected={selectedChatbot?.name === chatbot?.name}
+              description={chatbot.description}
             >
-              {chatbot.displayName}
+              {chatbot.displayName ?? chatbot.name}
             </DropdownItem>
           ))
         ) : (

@@ -72,7 +72,7 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
       newMessages.push({
         avatar: botAvatar,
         id: getId(),
-        name: currentChatbot?.displayName,
+        name: currentChatbot?.displayName ?? currentChatbot?.name,
         role: 'bot',
         content: currentMessage.join(''),
         ...(currentSources && { sources: { sources: currentSources } }),
@@ -123,9 +123,9 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
   }, [messages, currentMessage, currentSources]);
 
   const ERROR_BODY = {
-    'Error: 404': `${currentChatbot?.displayName} is currently unavailable. Use a different assistant or try again later.`,
-    'Error: 500': `${currentChatbot?.displayName} has encountered an error and is unable to answer your question. Use a different assistant or try again later.`,
-    'Error: Other': `${currentChatbot?.displayName} has encountered an error and is unable to answer your question. Use a different assistant or try again later.`,
+    'Error: 404': `${currentChatbot?.displayName ?? currentChatbot?.name} is currently unavailable. Use a different assistant or try again later.`,
+    'Error: 500': `${currentChatbot?.displayName ?? currentChatbot?.name} has encountered an error and is unable to answer your question. Use a different assistant or try again later.`,
+    'Error: Other': `${currentChatbot?.displayName ?? currentChatbot?.name} has encountered an error and is unable to answer your question. Use a different assistant or try again later.`,
   };
 
   const handleError = (e) => {
@@ -295,7 +295,10 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
         </ChatbotHeaderMain>
       </ChatbotHeader>
       <ChatbotContent>
-        <MessageBox ariaLabel={`Scrollable message log for ${chatbot.displayName}`} announcement={announcement}>
+        <MessageBox
+          ariaLabel={`Scrollable message log for ${chatbot.displayName ?? chatbot?.name}`}
+          announcement={announcement}
+        >
           {error && (
             <ChatbotAlert
               variant="danger"
@@ -315,7 +318,7 @@ const CompareChild: React.FunctionComponent<CompareChildProps> = ({
           {currentMessage.length > 0 && (
             <Message
               avatar={botAvatar}
-              name={currentChatbot?.displayName}
+              name={currentChatbot?.displayName ?? currentChatbot?.name}
               key="currentMessage"
               role="bot"
               content={currentMessage.join('')}
