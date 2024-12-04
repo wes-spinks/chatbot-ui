@@ -29,7 +29,12 @@ import { useAppData } from '@app/AppData/AppDataContext';
 
 const BaseChatbot: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
-  const { flyoutMenuSelectedChatbot, updateFlyoutMenuSelectedChatbot, setChatbots } = useAppData();
+  const {
+    flyoutMenuSelectedChatbot,
+    updateFlyoutMenuSelectedChatbot,
+    chatbots: appDataChatbots,
+    setChatbots,
+  } = useAppData();
   const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(true);
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
@@ -51,6 +56,10 @@ const BaseChatbot: React.FunctionComponent = () => {
   React.useEffect(() => {
     setChatbots(chatbots);
   }, [chatbots]);
+
+  React.useEffect(() => {
+    setChatbots(appDataChatbots);
+  }, [appDataChatbots]);
 
   React.useEffect(() => {
     document.title = `Red Hat Composer AI Studio | ${currentChatbot?.name}`;

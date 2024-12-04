@@ -57,7 +57,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
   const [validated, setValidated] = React.useState<validate>('default');
   const [selectedLLM, setSelectedLLM] = React.useState<LLMAPIResponse>();
   const [prompt, setPrompt] = React.useState<string>();
-  const { nextStep, prevStep } = useFlyoutWizard();
+  const { nextStep, prevStep, setReloadList } = useFlyoutWizard();
   const { chatbots } = useAppData();
 
   const ERROR_BODY = {
@@ -210,6 +210,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
       }
 
       const data = await response.json();
+      setReloadList(true);
       return data;
     } catch (error) {
       if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
