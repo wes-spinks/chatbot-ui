@@ -15,6 +15,8 @@ Create a .env file with the following values (ask for the real URLs)
 ```
 REACT_APP_ROUTER_URL=''
 REACT_APP_INFO_URL=''
+REACT_APP_RETRIEVER_URL=''
+REACT_APP_LLM_URL=''
 ```
 
 ```bash

@@ -4,18 +4,23 @@ import * as React from 'react';
 interface AppDataContextType {
   flyoutMenuSelectedChatbot?: CannedChatbot;
   updateFlyoutMenuSelectedChatbot: (newChatbot: CannedChatbot) => void;
+  chatbots: CannedChatbot[];
+  setChatbots: (chatbots: CannedChatbot[]) => void;
 }
 
 const AppDataContext = React.createContext<AppDataContextType | undefined>(undefined);
 
 export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [flyoutMenuSelectedChatbot, setFlyoutMenuSelectedChatbot] = React.useState<CannedChatbot>();
+  const [chatbots, setChatbots] = React.useState<CannedChatbot[]>([]);
 
   const updateFlyoutMenuSelectedChatbot = (newChatbot: CannedChatbot) =>
     setFlyoutMenuSelectedChatbot((prev) => ({ ...prev, ...newChatbot }));
 
   return (
-    <AppDataContext.Provider value={{ flyoutMenuSelectedChatbot, updateFlyoutMenuSelectedChatbot }}>
+    <AppDataContext.Provider
+      value={{ flyoutMenuSelectedChatbot, updateFlyoutMenuSelectedChatbot, chatbots, setChatbots }}
+    >
       {children}
     </AppDataContext.Provider>
   );

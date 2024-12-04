@@ -6,7 +6,6 @@ import { FlyoutLoading } from '@app/FlyoutLoading/FlyoutLoading';
 import { useFlyoutWizard } from '@app/FlyoutWizard/FlyoutWizardContext';
 import { CannedChatbot } from '@app/types/CannedChatbot';
 import { ErrorObject } from '@app/types/ErrorObject';
-import { ERROR_TITLE } from '@app/utils/utils';
 import { Label, Menu, MenuContent, MenuItem, MenuList, SearchInput } from '@patternfly/react-core';
 import * as React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -32,30 +31,7 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
   const { nextStep } = useFlyoutWizard();
   const location = useLocation();
   const navigate = useNavigate();
-  const { flyoutMenuSelectedChatbot, updateFlyoutMenuSelectedChatbot } = useAppData();
-
-  const ERROR_BODY = {
-    'Error: 404': `Service is currently unavailable. Click retry or try again later.`,
-    'Error: 500': `Service has encountered an error. Click retry or try again later.`,
-    'Error: Other': `Service has encountered an error. Click retry or try again later.`,
-  };
-
-  const handleError = (e) => {
-    console.error(e);
-    const title = ERROR_TITLE[e];
-    const body = ERROR_BODY[e];
-    let newError;
-    if (title && body) {
-      newError = { title: ERROR_TITLE[e], body: ERROR_BODY[e] };
-    } else {
-      if ('message' in e) {
-        newError = { title: 'Error', body: e.message };
-      } else {
-        newError = { title: 'Error', body: e };
-      }
-    }
-    setError(newError);
-  };
+  const { flyoutMenuSelectedChatbot, updateFlyoutMenuSelectedChatbot, chatbots } = useAppData();
 
   const header = (
     <div className="title-with-label">
@@ -64,24 +40,9 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
   );
 
   const getAssistants = async () => {
-    const url = process.env.REACT_APP_INFO_URL ?? '';
-
-    try {
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`${response.status}`);
-      }
-
-      const data = await response.json();
-      setItems(data);
-      setFilteredItems(data);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error loading assistants', error);
-      handleError(error);
-      setIsLoading(false);
-    }
+    setItems(chatbots);
+    setFilteredItems(chatbots);
+    setIsLoading(false);
   };
 
   const loadAssistants = async () => {
@@ -101,6 +62,7 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
             itemId={item.name}
             key={item.name}
             isSelected={item.name === flyoutMenuSelectedChatbot?.name}
+            description={item.description}
           >
             {item.displayName ?? item.name}
           </MenuItem>

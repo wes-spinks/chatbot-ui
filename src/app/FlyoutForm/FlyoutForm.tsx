@@ -1,3 +1,4 @@
+import { useAppData } from '@app/AppData/AppDataContext';
 import { FlyoutError } from '@app/FlyoutError/FlyoutError';
 import { FlyoutFooter } from '@app/FlyoutFooter/FlyoutFooter';
 import { FlyoutHeader } from '@app/FlyoutHeader.tsx/FlyoutHeader';
@@ -19,6 +20,7 @@ import {
   TextArea,
   TextInput,
 } from '@patternfly/react-core';
+import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import * as React from 'react';
 
 interface RetrieverAPIResponse {
@@ -38,6 +40,8 @@ interface FlyoutFormProps {
   hideFlyout: () => void;
 }
 
+type validate = 'success' | 'error' | 'default';
+
 export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, hideFlyout }: FlyoutFormProps) => {
   const [isLoading, setIsLoading] = React.useState(true);
   const [loadedFormFields, setLoadedFormFields] = React.useState(false);
@@ -50,9 +54,11 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
   const [llms, setLLMs] = React.useState<LLMAPIResponse[]>([]);
   const [isRetrieverDropdownOpen, setIsRetrieverDropdownOpen] = React.useState(false);
   const [isLLMDropdownOpen, setIsLLMDropdownOpen] = React.useState(false);
+  const [validated, setValidated] = React.useState<validate>('default');
   const [selectedLLM, setSelectedLLM] = React.useState<LLMAPIResponse>();
   const [prompt, setPrompt] = React.useState<string>();
   const { nextStep, prevStep } = useFlyoutWizard();
+  const { chatbots } = useAppData();
 
   const ERROR_BODY = {
     'Error: 404': `Service is currently unavailable. Click retry or try again later.`,
@@ -128,8 +134,19 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
     loadData();
   }, []);
 
+  const chatbotExists = (title: string) => {
+    return chatbots.filter((chatbot) => chatbot.name === title).length >= 1;
+  };
+
   const handleTitleChange = (_event, title: string) => {
     setTitle(title);
+    if (title.trim() === '') {
+      setValidated('default');
+    } else if (!chatbotExists(title)) {
+      setValidated('success');
+    } else {
+      setValidated('error');
+    }
   };
 
   const handleDisplayNameChange = (_event, name: string) => {
@@ -175,6 +192,11 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
     };
 
     try {
+      // handle if no llms
+      const hasLLM = llms.length > 0 ? selectedLLM : true;
+      if (title === '' && hasLLM && validated !== 'success') {
+        throw new Error('Missing form fields');
+      }
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -201,7 +223,9 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
 
   const onClick = async () => {
     setError(undefined);
-    if (loadedFormFields && title !== '' && selectedLLM) {
+    // handle if no llms
+    const hasLLM = llms.length > 0 ? selectedLLM : true;
+    if (loadedFormFields && title !== '' && hasLLM && validated === 'success') {
       const data = await createAssistant();
       if (data) {
         nextStep();
@@ -231,7 +255,12 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
               />
               <FormHelperText>
                 <HelperText>
-                  <HelperTextItem>Unique name for your assistant</HelperTextItem>
+                  <HelperTextItem
+                    icon={validated === 'error' ? <ExclamationCircleIcon /> : undefined}
+                    variant={validated}
+                  >
+                    {validated === 'error' ? 'Must be unique' : 'Unique name for your assistant'}
+                  </HelperTextItem>
                 </HelperText>
               </FormHelperText>
             </FormGroup>
@@ -249,68 +278,76 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
                 </HelperText>
               </FormHelperText>
             </FormGroup>
-            <FormGroup label="Knowledge source" fieldId="flyout-form-model">
-              <Dropdown
-                isOpen={isRetrieverDropdownOpen}
-                onSelect={handleRetrieverChange}
-                onOpenChange={(isOpen: boolean) => setIsRetrieverDropdownOpen(isOpen)}
-                ouiaId="KnowledgeSourceDropdown"
-                shouldFocusToggleOnSelect
-                onOpenChangeKeys={['Escape']}
-                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                  <MenuToggle ref={toggleRef} onClick={onRetrieverToggleClick} isExpanded={isRetrieverDropdownOpen}>
-                    {selectedRetriever ? selectedRetriever.description : 'Choose a knowledge source'}
-                  </MenuToggle>
-                )}
-                popperProps={{ appendTo: 'inline' }}
-              >
-                <DropdownList>
-                  {retrieverConnections.map((connection) => (
-                    <DropdownItem
-                      key={connection.id}
-                      value={connection}
-                      isSelected={connection.id === selectedRetriever?.id}
-                    >
-                      {connection.description}
-                    </DropdownItem>
-                  ))}
-                </DropdownList>
-              </Dropdown>
-              <FormHelperText>
-                <HelperText>
-                  <HelperTextItem>
-                    Used for{' '}
-                    <a href="https://www.redhat.com/en/topics/ai/what-is-retrieval-augmented-generation">
-                      Retrieval Augmented Generation (RAG)
-                    </a>
-                  </HelperTextItem>
-                </HelperText>
-              </FormHelperText>
-            </FormGroup>
-            <FormGroup isRequired label="Model" fieldId="flyout-form-model">
-              <Dropdown
-                isOpen={isLLMDropdownOpen}
-                onSelect={handleLLMChange}
-                onOpenChange={(isOpen: boolean) => setIsLLMDropdownOpen(isOpen)}
-                ouiaId="ModelDropdown"
-                shouldFocusToggleOnSelect
-                onOpenChangeKeys={['Escape']}
-                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                  <MenuToggle ref={toggleRef} onClick={onLLMToggleClick} isExpanded={isLLMDropdownOpen}>
-                    {selectedLLM ? selectedLLM.description : 'Choose an model'}
-                  </MenuToggle>
-                )}
-                popperProps={{ appendTo: 'inline' }}
-              >
-                <DropdownList>
-                  {llms.map((connection) => (
-                    <DropdownItem key={connection.id} value={connection} isSelected={connection.id === selectedLLM?.id}>
-                      {connection.description}
-                    </DropdownItem>
-                  ))}
-                </DropdownList>
-              </Dropdown>
-            </FormGroup>
+            {retrieverConnections && retrieverConnections.length > 0 && (
+              <FormGroup label="Knowledge source" fieldId="flyout-form-model">
+                <Dropdown
+                  isOpen={isRetrieverDropdownOpen}
+                  onSelect={handleRetrieverChange}
+                  onOpenChange={(isOpen: boolean) => setIsRetrieverDropdownOpen(isOpen)}
+                  ouiaId="KnowledgeSourceDropdown"
+                  shouldFocusToggleOnSelect
+                  onOpenChangeKeys={['Escape']}
+                  toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                    <MenuToggle ref={toggleRef} onClick={onRetrieverToggleClick} isExpanded={isRetrieverDropdownOpen}>
+                      {selectedRetriever ? selectedRetriever.description : 'Choose a knowledge source'}
+                    </MenuToggle>
+                  )}
+                  popperProps={{ appendTo: 'inline' }}
+                >
+                  <DropdownList>
+                    {retrieverConnections.map((connection) => (
+                      <DropdownItem
+                        key={connection.id}
+                        value={connection}
+                        isSelected={connection.id === selectedRetriever?.id}
+                      >
+                        {connection.description}
+                      </DropdownItem>
+                    ))}
+                  </DropdownList>
+                </Dropdown>
+                <FormHelperText>
+                  <HelperText>
+                    <HelperTextItem>
+                      Used for{' '}
+                      <a href="https://www.redhat.com/en/topics/ai/what-is-retrieval-augmented-generation">
+                        Retrieval Augmented Generation (RAG)
+                      </a>
+                    </HelperTextItem>
+                  </HelperText>
+                </FormHelperText>
+              </FormGroup>
+            )}
+            {llms && llms.length > 0 && (
+              <FormGroup isRequired label="Model" fieldId="flyout-form-model">
+                <Dropdown
+                  isOpen={isLLMDropdownOpen}
+                  onSelect={handleLLMChange}
+                  onOpenChange={(isOpen: boolean) => setIsLLMDropdownOpen(isOpen)}
+                  ouiaId="ModelDropdown"
+                  shouldFocusToggleOnSelect
+                  onOpenChangeKeys={['Escape']}
+                  toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                    <MenuToggle ref={toggleRef} onClick={onLLMToggleClick} isExpanded={isLLMDropdownOpen}>
+                      {selectedLLM ? selectedLLM.description : 'Choose an model'}
+                    </MenuToggle>
+                  )}
+                  popperProps={{ appendTo: 'inline' }}
+                >
+                  <DropdownList>
+                    {llms.map((connection) => (
+                      <DropdownItem
+                        key={connection.id}
+                        value={connection}
+                        isSelected={connection.id === selectedLLM?.id}
+                      >
+                        {connection.description}
+                      </DropdownItem>
+                    ))}
+                  </DropdownList>
+                </Dropdown>
+              </FormGroup>
+            )}
             <FormGroup fieldId="flyout-form-description" label="Description">
               <TextArea
                 id="flyout-form-description"
@@ -347,7 +384,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
       </div>
       {!error && (
         <FlyoutFooter
-          isPrimaryButtonDisabled={title === '' || !selectedLLM}
+          isPrimaryButtonDisabled={title === '' || (llms.length > 0 && !selectedLLM) || validated !== 'success'}
           primaryButton="Create assistant"
           onPrimaryButtonClick={onClick}
           secondaryButton="Cancel"

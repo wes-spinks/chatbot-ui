@@ -9,6 +9,7 @@ import { useChildStatus } from './ChildStatusProvider';
 import { ErrorObject } from '@app/types/ErrorObject';
 import { UserFacingFile } from '@app/types/UserFacingFile';
 import { getId } from '@app/utils/utils';
+import { useAppData } from '@app/AppData/AppDataContext';
 
 export const CompareLayout: React.FunctionComponent = () => {
   // information from api
@@ -37,6 +38,13 @@ export const CompareLayout: React.FunctionComponent = () => {
 
   // context, used for stop buttons
   const { status } = useChildStatus();
+
+  // context, used for panels
+  const { setChatbots } = useAppData();
+
+  React.useEffect(() => {
+    setChatbots(chatbots);
+  }, [chatbots]);
 
   React.useEffect(() => {
     document.title = `Red Hat Composer AI Studio | Compare`;
