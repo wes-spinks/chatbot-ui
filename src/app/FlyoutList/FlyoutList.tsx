@@ -6,6 +6,7 @@ import { useFlyoutWizard } from '@app/FlyoutWizard/FlyoutWizardContext';
 import { CannedChatbot } from '@app/types/CannedChatbot';
 import { Label, Menu, MenuContent, MenuItem, MenuList, SearchInput } from '@patternfly/react-core';
 import * as React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface FlyoutListProps {
   typeWordPlural: string;
@@ -25,6 +26,8 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
   const [filteredItems, setFilteredItems] = React.useState<CannedChatbot[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const { nextStep } = useFlyoutWizard();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { flyoutMenuSelectedChatbot, updateFlyoutMenuSelectedChatbot } = useAppData();
   const header = (
     <div className="title-with-label">
@@ -82,6 +85,10 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
       const newChatbot = items.filter((item) => item.name === value)[0];
       console.log(newChatbot);
       updateFlyoutMenuSelectedChatbot(newChatbot);
+      console.log(location.pathname);
+      if (location.pathname !== '/') {
+        navigate('/');
+      }
     }
   };
 

@@ -29,7 +29,7 @@ import { useAppData } from '@app/AppData/AppDataContext';
 
 const BaseChatbot: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
-  const { flyoutMenuSelectedChatbot } = useAppData();
+  const { flyoutMenuSelectedChatbot, updateFlyoutMenuSelectedChatbot } = useAppData();
   const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(true);
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
@@ -268,6 +268,7 @@ const BaseChatbot: React.FunctionComponent = () => {
     }
     setController(undefined);
     setCurrentChatbot(value);
+    updateFlyoutMenuSelectedChatbot(value);
     setMessages([]);
     setCurrentMessage([]);
     setCurrentSources(undefined);
