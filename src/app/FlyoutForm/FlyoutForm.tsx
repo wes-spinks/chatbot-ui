@@ -4,6 +4,7 @@ import { FlyoutHeader } from '@app/FlyoutHeader.tsx/FlyoutHeader';
 import { FlyoutLoading } from '@app/FlyoutLoading/FlyoutLoading';
 import { useFlyoutWizard } from '@app/FlyoutWizard/FlyoutWizardContext';
 import { ErrorObject } from '@app/types/ErrorObject';
+import { ERROR_TITLE } from '@app/utils/utils';
 import {
   Dropdown,
   DropdownItem,
@@ -39,6 +40,7 @@ interface FlyoutFormProps {
 
 export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, hideFlyout }: FlyoutFormProps) => {
   const [isLoading, setIsLoading] = React.useState(true);
+  const [loadedFormFields, setLoadedFormFields] = React.useState(false);
   const [title, setTitle] = React.useState('');
   const [displayName, setDisplayName] = React.useState('');
   const [description, setDescription] = React.useState('');
@@ -51,6 +53,29 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
   const [selectedLLM, setSelectedLLM] = React.useState<LLMAPIResponse>();
   const { nextStep, prevStep } = useFlyoutWizard();
 
+  const ERROR_BODY = {
+    'Error: 404': `Service is currently unavailable. Click retry or try again later.`,
+    'Error: 500': `Service has encountered an error. Click retry or try again later.`,
+    'Error: Other': `Service has encountered an error. Click retry or try again later.`,
+  };
+
+  const handleError = (e) => {
+    console.error(e);
+    const title = ERROR_TITLE[e];
+    const body = ERROR_BODY[e];
+    let newError;
+    if (title && body) {
+      newError = { title: ERROR_TITLE[e], body: ERROR_BODY[e] };
+    } else {
+      if ('message' in e) {
+        newError = { title: 'Error', body: e.message };
+      } else {
+        newError = { title: 'Error', body: e };
+      }
+    }
+    setError(newError);
+  };
+
   const getRetrieverConnections = async () => {
     const url = process.env.REACT_APP_RETRIEVER_URL ?? '';
 
@@ -58,16 +83,16 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
       const response = await fetch(url);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        throw new Error(`${response.status}`);
       }
 
       const data = await response.json();
       setRetrieverConnections(data);
-      console.log('retriever');
-      console.log(data);
       setIsLoading(false);
+      setLoadedFormFields(true);
     } catch (error) {
       console.error('Error loading data', error);
+      handleError(error);
       setIsLoading(false);
     }
   };
@@ -79,15 +104,16 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
       const response = await fetch(url);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        throw new Error(`${response.status}`);
       }
 
       const data = await response.json();
       setLLMs(data);
-      console.log(data);
       setIsLoading(false);
+      setLoadedFormFields(true);
     } catch (error) {
       console.error('Error loading data', error);
+      handleError(error);
       setIsLoading(false);
     }
   };
@@ -110,19 +136,17 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
   };
 
   const handleRetrieverChange = (_event, value) => {
-    console.log(value);
     setSelectedRetriever(value);
     setIsRetrieverDropdownOpen(false);
   };
 
   const handleLLMChange = (_event, value) => {
-    console.log(value);
     setSelectedLLM(value);
     setIsLLMDropdownOpen(false);
   };
 
-  const handleInstructionsChange = (_event, instructions: string) => {
-    setDescription(instructions);
+  const handleDescriptionChange = (_event, newDescription: string) => {
+    setDescription(newDescription);
   };
 
   const onRetrieverToggleClick = () => {
@@ -130,7 +154,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
   };
 
   const onLLMToggleClick = () => {
-    setIsLLMDropdownOpen(!isRetrieverDropdownOpen);
+    setIsLLMDropdownOpen(!isLLMDropdownOpen);
   };
 
   const createAssistant = async () => {
@@ -154,8 +178,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
       });
 
       if (!response.ok) {
-        // fixme use error handling used elsewhere
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        throw new Error(`${response.status}`);
       }
 
       const data = await response.json();
@@ -171,9 +194,14 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
   };
 
   const onClick = async () => {
-    const data = await createAssistant();
-    if (data) {
-      nextStep();
+    setError(undefined);
+    if (loadedFormFields && title !== '' && selectedLLM && selectedRetriever) {
+      const data = await createAssistant();
+      if (data) {
+        nextStep();
+      }
+    } else {
+      loadData();
     }
   };
 
@@ -225,7 +253,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
                 onOpenChangeKeys={['Escape']}
                 toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                   <MenuToggle ref={toggleRef} onClick={onRetrieverToggleClick} isExpanded={isRetrieverDropdownOpen}>
-                    {selectedRetriever ? selectedRetriever.description : 'Choose a retriever id'}
+                    {selectedRetriever ? selectedRetriever.description : 'Choose a retriever ID'}
                   </MenuToggle>
                 )}
                 popperProps={{ appendTo: 'inline' }}
@@ -253,7 +281,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
                 onOpenChangeKeys={['Escape']}
                 toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                   <MenuToggle ref={toggleRef} onClick={onLLMToggleClick} isExpanded={isLLMDropdownOpen}>
-                    {selectedLLM ? selectedLLM.description : 'Choose an LLM id'}
+                    {selectedLLM ? selectedLLM.description : 'Choose an LLM ID'}
                   </MenuToggle>
                 )}
                 popperProps={{ appendTo: 'inline' }}
@@ -271,7 +299,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
               <TextArea
                 id="flyout-form-instructions"
                 value={description}
-                onChange={handleInstructionsChange}
+                onChange={handleDescriptionChange}
                 aria-label="Text area for assistant description"
                 resizeOrientation="vertical"
               />

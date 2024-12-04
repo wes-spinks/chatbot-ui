@@ -19,7 +19,7 @@ export const FlyoutFooter: React.FunctionComponent<FlyoutFooterProps> = ({
   return (
     <div className="flyout-footer">
       <ActionGroup className={css('flyout-footer-action-group', secondaryButton && 'space-between')}>
-        {secondaryButton && secondaryButton && (
+        {secondaryButton && onSecondaryButtonClick && (
           <Button variant="secondary" onClick={onSecondaryButtonClick}>
             {secondaryButton}
           </Button>

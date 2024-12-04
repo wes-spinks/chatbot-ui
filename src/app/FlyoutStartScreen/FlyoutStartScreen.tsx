@@ -4,8 +4,6 @@ import { Button } from '@patternfly/react-core';
 import * as React from 'react';
 
 interface FlyoutStartScreenProps {
-  image?: string;
-  imageAlt?: string;
   title: string;
   subtitle?: string;
   primaryButtonText?: string;
@@ -15,8 +13,6 @@ interface FlyoutStartScreenProps {
 }
 
 export const FlyoutStartScreen: React.FunctionComponent<FlyoutStartScreenProps> = ({
-  image,
-  imageAlt,
   subtitle,
   title,
   primaryButtonText,
@@ -29,7 +25,6 @@ export const FlyoutStartScreen: React.FunctionComponent<FlyoutStartScreenProps> 
     <>
       <FlyoutHeader title={header} hideFlyout={hideFlyout} />
       <div className="start-screen">
-        {image && <img src={image} alt={imageAlt} />}
         <div className="start-screen-text">
           <h1>{title}</h1>
           {subtitle && <p>{subtitle}</p>}
