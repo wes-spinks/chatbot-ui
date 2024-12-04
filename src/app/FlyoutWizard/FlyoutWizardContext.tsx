@@ -11,7 +11,10 @@ const FlyoutWizardContext = React.createContext<FlyoutWizardContextType | undefi
 
 export const FlyoutWizardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentStep, setCurrentStep] = React.useState(0);
-  const nextStep = () => setCurrentStep((prev) => prev + 1);
+  const nextStep = () =>
+    setCurrentStep((prev) => {
+      return prev + 1;
+    });
   const prevStep = () => setCurrentStep((prev) => prev - 1);
   const goToStep = (step: number) => setCurrentStep(step);
 

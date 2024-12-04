@@ -5,24 +5,9 @@ interface FlyoutMenuProps {
   id: string;
   height: number;
   children: React.ReactNode;
-  hideFlyout: () => void;
 }
-export const FlyoutMenu: React.FunctionComponent<FlyoutMenuProps> = ({
-  id,
-  height,
-  children,
-  hideFlyout,
-}: FlyoutMenuProps) => {
+export const FlyoutMenu: React.FunctionComponent<FlyoutMenuProps> = ({ id, height, children }: FlyoutMenuProps) => {
   const previouslyFocusedElement = React.useRef<HTMLElement>(null);
-
-  const handleFlyout = (event) => {
-    const key = event.key;
-    if (key === 'Escape') {
-      event.stopPropagation();
-      event.preventDefault();
-      hideFlyout();
-    }
-  };
 
   const focusTrapProps = {
     tabIndex: -1,
@@ -58,7 +43,6 @@ export const FlyoutMenu: React.FunctionComponent<FlyoutMenuProps> = ({
       style={{
         height: `${height}px`,
       }}
-      onKeyDown={handleFlyout}
       {...focusTrapProps}
     >
       {children}

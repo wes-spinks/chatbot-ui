@@ -116,12 +116,7 @@ export const SidebarWithFlyout: React.FunctionComponent = () => {
         </Nav>
         {/* Flyout menu */}
         {visibleFlyout && (
-          <FlyoutMenu
-            key={visibleFlyout}
-            id={visibleFlyout}
-            height={sidebarHeight}
-            hideFlyout={() => setVisibleFlyout(null)}
-          >
+          <FlyoutMenu key={visibleFlyout} id={visibleFlyout} height={sidebarHeight}>
             {renderContent(visibleFlyout)}
           </FlyoutMenu>
         )}

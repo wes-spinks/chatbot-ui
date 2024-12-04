@@ -1,52 +1,105 @@
 import { FlyoutError } from '@app/FlyoutError/FlyoutError';
 import { FlyoutFooter } from '@app/FlyoutFooter/FlyoutFooter';
 import { FlyoutHeader } from '@app/FlyoutHeader.tsx/FlyoutHeader';
+import { FlyoutLoading } from '@app/FlyoutLoading/FlyoutLoading';
 import { useFlyoutWizard } from '@app/FlyoutWizard/FlyoutWizardContext';
 import { ErrorObject } from '@app/types/ErrorObject';
 import {
-  //Dropdown,
-  //DropdownItem,
-  //DropdownList,
-  //FileUpload,
+  Dropdown,
+  DropdownItem,
+  DropdownList,
   Form,
   FormGroup,
   FormHelperText,
   HelperText,
   HelperTextItem,
-  //MenuToggle,
-  //MenuToggleElement,
+  MenuToggle,
+  MenuToggleElement,
   TextArea,
   TextInput,
 } from '@patternfly/react-core';
 import * as React from 'react';
 
+interface RetrieverAPIResponse {
+  id: string;
+  description: string;
+  name: string;
+  connectionEntity: { contentRetrieverType: string; metadataFields: string[] };
+}
+
+interface LLMAPIResponse {
+  id: string;
+  description: string;
+  name: string;
+}
 interface FlyoutFormProps {
   header: string;
   hideFlyout: () => void;
 }
 
 export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, hideFlyout }: FlyoutFormProps) => {
+  const [isLoading, setIsLoading] = React.useState(true);
   const [title, setTitle] = React.useState('');
   const [displayName, setDisplayName] = React.useState('');
-  //const [model, setModel] = React.useState('');
-  const [instructions, setInstructions] = React.useState('');
-  //const [icon, setIcon] = React.useState('');
-  //const [filename, setFilename] = React.useState('');
+  const [description, setDescription] = React.useState('');
   const [error, setError] = React.useState<ErrorObject>();
+  const [retrieverConnections, setRetrieverConnections] = React.useState<RetrieverAPIResponse[]>([]);
+  const [selectedRetriever, setSelectedRetriever] = React.useState<RetrieverAPIResponse>();
+  const [llms, setLLMs] = React.useState<LLMAPIResponse[]>([]);
+  const [isRetrieverDropdownOpen, setIsRetrieverDropdownOpen] = React.useState(false);
+  const [isLLMDropdownOpen, setIsLLMDropdownOpen] = React.useState(false);
+  const [selectedLLM, setSelectedLLM] = React.useState<LLMAPIResponse>();
   const { nextStep, prevStep } = useFlyoutWizard();
 
-  const llmConnectionId = '66edae13e03073de9ef24204'; // fixme how do i get these
-  const retrieverConnectionId = '66f3fbffd7e04770c03ee123';
+  const getRetrieverConnections = async () => {
+    const url = process.env.REACT_APP_RETRIEVER_URL ?? '';
 
-  /*const handleFileInputChange = (_, file: File) => {
-    setFilename(file.name);
-  };*/
+    try {
+      const response = await fetch(url);
 
-  /*const handleClear = () => {
-    setFilename('');
-    setIcon('');
-  };*/
-  // const [isOpen, setIsOpen] = React.useState(false);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setRetrieverConnections(data);
+      console.log('retriever');
+      console.log(data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error loading data', error);
+      setIsLoading(false);
+    }
+  };
+
+  const getLLMs = async () => {
+    const url = process.env.REACT_APP_LLM_URL ?? '';
+
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setLLMs(data);
+      console.log(data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error loading data', error);
+      setIsLoading(false);
+    }
+  };
+
+  const loadData = async () => {
+    await getRetrieverConnections();
+    await getLLMs();
+  };
+
+  React.useEffect(() => {
+    loadData();
+  }, []);
 
   const handleTitleChange = (_event, title: string) => {
     setTitle(title);
@@ -56,32 +109,39 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
     setDisplayName(name);
   };
 
-  /*const handleModelChange = (_event, value: string | number | undefined) => {
-    if (value && typeof value === 'string') {
-      setModel(value);
-      return;
-    }
-    setModel('');
-  };*/
-
-  const handleInstructionsChange = (_event, instructions: string) => {
-    setInstructions(instructions);
+  const handleRetrieverChange = (_event, value) => {
+    console.log(value);
+    setSelectedRetriever(value);
+    setIsRetrieverDropdownOpen(false);
   };
 
-  /* const onToggleClick = () => {
-    setIsOpen(!isOpen);
-  };*/
+  const handleLLMChange = (_event, value) => {
+    console.log(value);
+    setSelectedLLM(value);
+    setIsLLMDropdownOpen(false);
+  };
+
+  const handleInstructionsChange = (_event, instructions: string) => {
+    setDescription(instructions);
+  };
+
+  const onRetrieverToggleClick = () => {
+    setIsRetrieverDropdownOpen(!isRetrieverDropdownOpen);
+  };
+
+  const onLLMToggleClick = () => {
+    setIsLLMDropdownOpen(!isRetrieverDropdownOpen);
+  };
 
   const createAssistant = async () => {
-    const url =
-      'https://quarkus-llm-router-composer-ai-apps.apps.cluster-sjbgj.sjbgj.sandbox2220.opentlc.com/admin/assistant';
+    const url = process.env.REACT_APP_INFO_URL ?? '';
 
     const payload = {
       name: title,
       displayName: displayName ?? title,
-      description: instructions,
-      llmConnectionId: llmConnectionId,
-      retrieverConnectionId: retrieverConnectionId,
+      description: description,
+      llmConnectionId: selectedLLM?.id,
+      retrieverConnectionId: selectedRetriever?.id,
     };
 
     try {
@@ -117,7 +177,9 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
     }
   };
 
-  return (
+  return isLoading ? (
+    <FlyoutLoading />
+  ) : (
     <>
       <FlyoutHeader title={header} hideFlyout={hideFlyout} />
       <div className="flyout-form-container">
@@ -149,55 +211,68 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
               />
               <FormHelperText>
                 <HelperText>
-                  <HelperTextItem>Different name for the assistant, displayed in the UI</HelperTextItem>
+                  <HelperTextItem>Different name for the assistant, if desired, to display in the UI</HelperTextItem>
                 </HelperText>
               </FormHelperText>
             </FormGroup>
-            {/*<FormGroup label="Model" fieldId="flyout-form-model">
-            <Dropdown
-              id="flyout-form-model"
-              className="assistant-selector-menu"
-              isOpen={isOpen}
-              onSelect={handleModelChange}
-              onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
-              ouiaId="BasicDropdown"
-              shouldFocusToggleOnSelect
-              onOpenChangeKeys={['Escape']}
-              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isOpen}>
-                  Choose a model
-                </MenuToggle>
-              )}
-              popperProps={{ appendTo: 'inline' }}
-            >
-              <DropdownList>
-                <DropdownItem key="one" value="one" isSelected={model === 'one'}>
-                  one
-                </DropdownItem>
-                <DropdownItem key="two" value="two" isSelected={model === 'two'}>
-                  two
-                </DropdownItem>
-              </DropdownList>
-            </Dropdown>
-          </FormGroup>*/}
-            {/*<FormGroup label="Icon" fieldId="flyout-form-icon">
-            <FileUpload
-              className="flyout-form-fileupload"
-              id="flyout-form-icon"
-              value={icon}
-              filename={filename}
-              filenamePlaceholder="Drag and drop a file or upload one"
-              onFileInputChange={handleFileInputChange}
-              onClearClick={handleClear}
-              browseButtonText="Upload"
-            />
-          </FormGroup>*/}
-            <FormGroup fieldId="flyout-form-instructions" label="Custom instructions">
+            <FormGroup isRequired label="Retriever ID" fieldId="flyout-form-model">
+              <Dropdown
+                isOpen={isRetrieverDropdownOpen}
+                onSelect={handleRetrieverChange}
+                onOpenChange={(isOpen: boolean) => setIsRetrieverDropdownOpen(isOpen)}
+                ouiaId="RetrieverIdDropdown"
+                shouldFocusToggleOnSelect
+                onOpenChangeKeys={['Escape']}
+                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                  <MenuToggle ref={toggleRef} onClick={onRetrieverToggleClick} isExpanded={isRetrieverDropdownOpen}>
+                    {selectedRetriever ? selectedRetriever.description : 'Choose a retriever id'}
+                  </MenuToggle>
+                )}
+                popperProps={{ appendTo: 'inline' }}
+              >
+                <DropdownList>
+                  {retrieverConnections.map((connection) => (
+                    <DropdownItem
+                      key={connection.id}
+                      value={connection}
+                      isSelected={connection.id === selectedRetriever?.id}
+                    >
+                      {connection.description}
+                    </DropdownItem>
+                  ))}
+                </DropdownList>
+              </Dropdown>
+            </FormGroup>
+            <FormGroup isRequired label="LLM ID" fieldId="flyout-form-model">
+              <Dropdown
+                isOpen={isLLMDropdownOpen}
+                onSelect={handleLLMChange}
+                onOpenChange={(isOpen: boolean) => setIsLLMDropdownOpen(isOpen)}
+                ouiaId="LLMIDDropdown"
+                shouldFocusToggleOnSelect
+                onOpenChangeKeys={['Escape']}
+                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                  <MenuToggle ref={toggleRef} onClick={onLLMToggleClick} isExpanded={isLLMDropdownOpen}>
+                    {selectedLLM ? selectedLLM.description : 'Choose an LLM id'}
+                  </MenuToggle>
+                )}
+                popperProps={{ appendTo: 'inline' }}
+              >
+                <DropdownList>
+                  {llms.map((connection) => (
+                    <DropdownItem key={connection.id} value={connection} isSelected={connection.id === selectedLLM?.id}>
+                      {connection.description}
+                    </DropdownItem>
+                  ))}
+                </DropdownList>
+              </Dropdown>
+            </FormGroup>
+            <FormGroup fieldId="flyout-form-instructions" label="Description">
               <TextArea
                 id="flyout-form-instructions"
-                value={instructions}
+                value={description}
                 onChange={handleInstructionsChange}
-                aria-label="Text area for custom instructions"
+                aria-label="Text area for assistant description"
                 resizeOrientation="vertical"
               />
               <FormHelperText>
@@ -211,7 +286,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
       </div>
       {!error && (
         <FlyoutFooter
-          isPrimaryButtonDisabled={title === ''}
+          isPrimaryButtonDisabled={title === '' || !selectedLLM || !selectedRetriever}
           primaryButton="Create assistant"
           onPrimaryButtonClick={onClick}
           secondaryButton="Cancel"
