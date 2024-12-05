@@ -25,9 +25,16 @@ import userAvatar from '@app/bgimages/avatarImg.svg';
 import { Source } from '@app/types/Source';
 import { SourceResponse } from '@app/types/SourceResponse';
 import { UserFacingFile } from '@app/types/UserFacingFile';
+import { useAppData } from '@app/AppData/AppDataContext';
 
 const BaseChatbot: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
+  const {
+    flyoutMenuSelectedChatbot,
+    updateFlyoutMenuSelectedChatbot,
+    chatbots: appDataChatbots,
+    setChatbots,
+  } = useAppData();
   const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(true);
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
@@ -35,7 +42,7 @@ const BaseChatbot: React.FunctionComponent = () => {
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
   const [error, setError] = React.useState<{ title: string; body: string }>();
   const [announcement, setAnnouncement] = React.useState<string>();
-  const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(chatbots[0]);
+  const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(flyoutMenuSelectedChatbot ?? chatbots[0]);
   const [controller, setController] = React.useState<AbortController>();
   const [currentDate, setCurrentDate] = React.useState<Date>();
   const [hasStopButton, setHasStopButton] = React.useState(false);
@@ -47,8 +54,22 @@ const BaseChatbot: React.FunctionComponent = () => {
   }, []);
 
   React.useEffect(() => {
+    setChatbots(chatbots);
+  }, [chatbots]);
+
+  React.useEffect(() => {
+    setChatbots(appDataChatbots);
+  }, [appDataChatbots]);
+
+  React.useEffect(() => {
     document.title = `Red Hat Composer AI Studio | ${currentChatbot?.name}`;
   }, [currentChatbot]);
+
+  React.useEffect(() => {
+    if (flyoutMenuSelectedChatbot) {
+      setCurrentChatbot(flyoutMenuSelectedChatbot);
+    }
+  }, [flyoutMenuSelectedChatbot]);
 
   React.useEffect(() => {
     document.title = `Red Hat Composer AI Studio | ${currentChatbot?.name}${announcement ? ` - ${announcement}` : ''}`;
@@ -67,9 +88,9 @@ const BaseChatbot: React.FunctionComponent = () => {
   const url = process.env.REACT_APP_ROUTER_URL ?? '';
 
   const ERROR_BODY = {
-    'Error: 404': `${currentChatbot?.displayName} is currently unavailable. Use a different assistant or try again later.`,
-    'Error: 500': `${currentChatbot?.displayName} has encountered an error and is unable to answer your question. Use a different assistant or try again later.`,
-    'Error: Other': `${currentChatbot?.displayName} has encountered an error and is unable to answer your question. Use a different assistant or try again later.`,
+    'Error: 404': `${currentChatbot?.displayName ?? currentChatbot?.name} is currently unavailable. Use a different assistant or try again later.`,
+    'Error: 500': `${currentChatbot?.displayName ?? currentChatbot?.name} has encountered an error and is unable to answer your question. Use a different assistant or try again later.`,
+    'Error: Other': `${currentChatbot?.displayName ?? currentChatbot?.name} has encountered an error and is unable to answer your question. Use a different assistant or try again later.`,
   };
 
   const handleError = (e) => {
@@ -217,7 +238,7 @@ const BaseChatbot: React.FunctionComponent = () => {
       newMessages.push({
         avatar: botAvatar,
         id: getId(),
-        name: currentChatbot?.displayName,
+        name: currentChatbot?.displayName ?? currentChatbot?.name,
         role: 'bot',
         content: currentMessage.join(''),
         ...(currentSources && { sources: { sources: currentSources } }),
@@ -260,6 +281,7 @@ const BaseChatbot: React.FunctionComponent = () => {
     }
     setController(undefined);
     setCurrentChatbot(value);
+    updateFlyoutMenuSelectedChatbot(value);
     setMessages([]);
     setCurrentMessage([]);
     setCurrentSources(undefined);
@@ -377,7 +399,7 @@ const BaseChatbot: React.FunctionComponent = () => {
           {currentMessage.length > 0 && (
             <Message
               avatar={botAvatar}
-              name={currentChatbot?.displayName}
+              name={currentChatbot?.displayName ?? currentChatbot?.name}
               key="currentMessage"
               role="bot"
               content={currentMessage.join('')}

@@ -3,10 +3,11 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { HeaderDropdown } from './HeaderDropdown';
 import userEvent from '@testing-library/user-event';
+import { CannedChatbot } from '@app/types/CannedChatbot';
 
-const MOCK_CHATBOTS = [
-  { name: 'test1', displayName: 'Test1' },
-  { name: 'test2', displayName: 'Test2' },
+const MOCK_CHATBOTS: CannedChatbot[] = [
+  { name: 'test1', displayName: 'Test1', llmConnection: { description: '', id: '1', name: 'test' } },
+  { name: 'test2', displayName: 'Test2', llmConnection: { description: '', id: '2', name: 'test2' } },
 ];
 describe('Header dropdown', () => {
   it('should render correctly', async () => {

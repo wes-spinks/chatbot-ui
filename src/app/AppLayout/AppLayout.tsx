@@ -15,6 +15,7 @@ import { BarsIcon } from '@patternfly/react-icons';
 import logo from '@app/bgimages/Logo-Red_Hat-Composer_AI_Studio-A-Standard-RGB.svg';
 import logoDark from '@app/bgimages/Logo-Red_Hat-Composer_AI_Studio-A-Reverse.svg';
 import { SidebarWithFlyout } from '@app/SidebarWithFlyout/SidebarWithFlyout';
+import { AppDataProvider } from '@app/AppData/AppDataContext';
 
 const AppLayout: React.FunctionComponent = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
@@ -77,16 +78,18 @@ const AppLayout: React.FunctionComponent = () => {
   );
 
   return (
-    <Page
-      className="chatbot-ui-page"
-      mainContainerId={pageId}
-      masthead={masthead}
-      sidebar={sidebarOpen && Sidebar}
-      skipToContent={PageSkipToContent}
-      isContentFilled
-    >
-      <Outlet />
-    </Page>
+    <AppDataProvider>
+      <Page
+        className="chatbot-ui-page"
+        mainContainerId={pageId}
+        masthead={masthead}
+        sidebar={sidebarOpen && Sidebar}
+        skipToContent={PageSkipToContent}
+        isContentFilled
+      >
+        <Outlet />
+      </Page>
+    </AppDataProvider>
   );
 };
 

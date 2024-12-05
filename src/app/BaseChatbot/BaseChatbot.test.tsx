@@ -4,6 +4,7 @@ import '@testing-library/jest-dom';
 import { BaseChatbot } from './BaseChatbot';
 import { RouterProvider, createMemoryRouter, useLoaderData as useLoaderDataOriginal } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
+import { AppDataProvider } from '@app/AppData/AppDataContext';
 
 window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
@@ -44,7 +45,11 @@ describe('Base chatbot', () => {
   });
 
   it('should render correctly', () => {
-    render(<RouterProvider router={router} />);
+    render(
+      <AppDataProvider>
+        <RouterProvider router={router} />
+      </AppDataProvider>,
+    );
     screen.getByText('Red Hat AI Assistant');
     screen.getByText('Hello, Chatbot User');
     screen.getByText('How may I help you today?');
@@ -54,7 +59,11 @@ describe('Base chatbot', () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       json: async () => ({ data: 'Hello World' }),
     });
-    render(<RouterProvider router={router} />);
+    render(
+      <AppDataProvider>
+        <RouterProvider router={router} />
+      </AppDataProvider>,
+    );
     const input = screen.getByRole('textbox', { name: /Send a message.../i });
     await userEvent.type(input, 'test{enter}');
     expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -70,7 +79,11 @@ describe('Base chatbot', () => {
     (global.fetch as jest.Mock).mockResolvedValueOnce({
       json: async () => ({ data: 'Hello World' }),
     });
-    render(<RouterProvider router={router} />);
+    render(
+      <AppDataProvider>
+        <RouterProvider router={router} />
+      </AppDataProvider>,
+    );
     const input = screen.getByRole('textbox', { name: /Send a message.../i });
     await userEvent.type(input, 'test{enter}');
     screen.getByRole('heading', { name: /Danger alert: Error/i });
