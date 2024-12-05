@@ -525,3 +525,35 @@ pf-v6-c-page__main-container.pf-m-fill {
 .flyout-error {
   height: 100%;
 }
+
+.expanding-text-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-t--global--spacer--md);
+}
+
+.expanding-text-inputs__row {
+  display: flex;
+  gap: var(--pf-t--global--spacer--sm);
+  align-items: center;
+  width: 100%;
+
+  .expanding-text-inputs__row-value {
+    flex: 1;
+  }
+}
+
+.expanding-text-input__row-with-background {
+  background-color: var(--pf-t--global--background--color--secondary--default);
+  padding-inline-start: var(--pf-t--global--spacer--md);
+  padding-inline-end: var(--pf-t--global--spacer--sm);
+  padding-block-start: var(--pf-t--global--spacer--sm);
+  padding-block-end: var(--pf-t--global--spacer--sm);
+  position: relative;
+}
+
+.hidden {
+  position: absolute;
+  opacity: 0;
+  z-index: -1;
+}

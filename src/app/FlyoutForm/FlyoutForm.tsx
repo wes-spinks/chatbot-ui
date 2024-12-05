@@ -22,6 +22,7 @@ import {
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import * as React from 'react';
+import { ExpandingTextInputs } from './ExpandingTextInputs';
 
 interface RetrieverAPIResponse {
   id: string;
@@ -41,6 +42,7 @@ interface FlyoutFormProps {
 }
 
 type validate = 'success' | 'error' | 'default';
+type questionsValidate = 'error' | 'default';
 
 export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, hideFlyout }: FlyoutFormProps) => {
   const [isLoading, setIsLoading] = React.useState(true);
@@ -57,6 +59,8 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
   const [validated, setValidated] = React.useState<validate>('default');
   const [selectedLLM, setSelectedLLM] = React.useState<LLMAPIResponse>();
   const [prompt, setPrompt] = React.useState<string>();
+  const [questions, setQuestions] = React.useState<string[]>([]);
+  const [questionsValidated, setQuestionsValidated] = React.useState<questionsValidate>('default');
   const { nextStep, prevStep, setReloadList } = useFlyoutWizard();
   const { chatbots } = useAppData();
 
@@ -171,6 +175,35 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
     setPrompt(newPrompt);
   };
 
+  const handleQuestionsChange = (newQuestion: string, index?: number) => {
+    const newQuestions = [...questions];
+    if (index !== undefined && index !== null) {
+      newQuestions[index] = newQuestion;
+      setQuestions(newQuestions);
+    } else {
+      newQuestions.push(newQuestion);
+      if (newQuestions.length > 3) {
+        setQuestionsValidated('error');
+        return;
+      }
+      setQuestions(newQuestions);
+      if (newQuestions.length === 3) {
+        setQuestionsValidated('error');
+      } else {
+        setQuestionsValidated('default');
+      }
+    }
+  };
+
+  const onDeleteQuestion = (index: number) => {
+    const newQuestions = [...questions];
+    newQuestions.splice(index, 1);
+    if (newQuestions.length < 3) {
+      setQuestionsValidated('default');
+    }
+    setQuestions(newQuestions);
+  };
+
   const onRetrieverToggleClick = () => {
     setIsRetrieverDropdownOpen(!isRetrieverDropdownOpen);
   };
@@ -189,6 +222,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
       llmConnectionId: selectedLLM?.id,
       retrieverConnectionId: selectedRetriever?.id,
       userPrompt: prompt,
+      exampleQuestions: questions,
     };
 
     try {
@@ -241,7 +275,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
   ) : (
     <>
       <FlyoutHeader title={header} hideFlyout={hideFlyout} />
-      <div className="flyout-form-container">
+      <section className="flyout-form-container" aria-label={title} tabIndex={-1}>
         {error ? (
           <FlyoutError title={error.title} subtitle={error.body} onClick={onClick} />
         ) : (
@@ -280,8 +314,9 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
               </FormHelperText>
             </FormGroup>
             {retrieverConnections && retrieverConnections.length > 0 && (
-              <FormGroup label="Knowledge source" fieldId="flyout-form-model">
+              <FormGroup label="Knowledge source" fieldId="flyout-form-knowledge-source">
                 <Dropdown
+                  id="flyout-form-knowledge-source"
                   isOpen={isRetrieverDropdownOpen}
                   onSelect={handleRetrieverChange}
                   onOpenChange={(isOpen: boolean) => setIsRetrieverDropdownOpen(isOpen)}
@@ -322,6 +357,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
             {llms && llms.length > 0 && (
               <FormGroup isRequired label="Model" fieldId="flyout-form-model">
                 <Dropdown
+                  id="flyout-form-model"
                   isOpen={isLLMDropdownOpen}
                   onSelect={handleLLMChange}
                   onOpenChange={(isOpen: boolean) => setIsLLMDropdownOpen(isOpen)}
@@ -330,7 +366,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
                   onOpenChangeKeys={['Escape']}
                   toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                     <MenuToggle ref={toggleRef} onClick={onLLMToggleClick} isExpanded={isLLMDropdownOpen}>
-                      {selectedLLM ? selectedLLM.description : 'Choose an model'}
+                      {selectedLLM ? selectedLLM.description : 'Choose a model'}
                     </MenuToggle>
                   )}
                   popperProps={{ appendTo: 'inline' }}
@@ -365,7 +401,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
             </FormGroup>
             <FormGroup fieldId="flyout-form-prompts" label="Prompt">
               <TextArea
-                id="flyout-form-prompt"
+                id="flyout-form-prompts"
                 value={prompt}
                 onChange={handlePromptChange}
                 aria-label="Text area for sample prompt"
@@ -380,9 +416,30 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
                 </HelperText>
               </FormHelperText>
             </FormGroup>
+            <FormGroup fieldId="flyout-form-questions" label="Example questions (Limit 3)">
+              <ExpandingTextInputs
+                fieldId="flyout-form-questions"
+                handleInputChange={handleQuestionsChange}
+                values={questions}
+                onDeleteValue={onDeleteQuestion}
+                isDisabled={questions.length === 3}
+              />
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem
+                    icon={questionsValidated === 'error' ? <ExclamationCircleIcon /> : undefined}
+                    variant={questionsValidated}
+                  >
+                    {questionsValidated === 'error'
+                      ? 'There is a three question limit. Try deleting a question to add more.'
+                      : 'A set of up to three example questions that a model could be asked. This will help the model generate accurate, relevant, and contextually appropriate responses.'}
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
+            </FormGroup>
           </Form>
         )}
-      </div>
+      </section>
       {!error && (
         <FlyoutFooter
           isPrimaryButtonDisabled={title === '' || (llms.length > 0 && !selectedLLM) || validated !== 'success'}
