@@ -159,9 +159,8 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
       {isLoading ? (
         <FlyoutLoading />
       ) : (
-        <div className="flyout-list">
+        <section className="flyout-list" aria-label={title} tabIndex={-1}>
           <SearchInput
-            aria-label={`Search ${typeWordPlural}`}
             onChange={(_event, value) => handleTextInputChange(value)}
             placeholder={`Search ${typeWordPlural}...`}
           />
@@ -176,7 +175,7 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
               )}
             </MenuContent>
           </Menu>
-        </div>
+        </section>
       )}
       <FlyoutFooter primaryButton={buttonText} onPrimaryButtonClick={onFooterButtonClick ?? nextStep} />
     </>

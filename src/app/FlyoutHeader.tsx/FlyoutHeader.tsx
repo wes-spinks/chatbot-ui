@@ -10,7 +10,7 @@ export const FlyoutHeader: React.FunctionComponent<FlyoutHeaderProps> = ({ title
   return (
     <div className="flyout-header">
       {title}
-      <Button onClick={hideFlyout} variant="plain" icon={<TimesIcon />} />
+      <Button onClick={hideFlyout} variant="plain" icon={<TimesIcon />} aria-label="Close" />
     </div>
   );
 };
