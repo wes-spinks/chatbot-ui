@@ -29,12 +29,7 @@ import { useAppData } from '@app/AppData/AppDataContext';
 
 const BaseChatbot: React.FunctionComponent = () => {
   const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
-  const {
-    flyoutMenuSelectedChatbot,
-    updateFlyoutMenuSelectedChatbot,
-    chatbots: appDataChatbots,
-    setChatbots,
-  } = useAppData();
+  const { flyoutMenuSelectedChatbot, updateFlyoutMenuSelectedChatbot, chatbots: appDataChatbots } = useAppData();
   const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(true);
   const [messages, setMessages] = React.useState<MessageProps[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState<string[]>([]);
@@ -48,17 +43,16 @@ const BaseChatbot: React.FunctionComponent = () => {
   const [hasStopButton, setHasStopButton] = React.useState(false);
   const [files, setFiles] = React.useState<UserFacingFile[]>([]);
   const [isLoadingFile, setIsLoadingFile] = React.useState<boolean>(false);
+  const [allChatbots, setAllChatbots] = React.useState<CannedChatbot[]>(chatbots);
 
   React.useEffect(() => {
     document.title = `Red Hat Composer AI Studio | ${currentChatbot?.name}`;
   }, []);
 
   React.useEffect(() => {
-    setChatbots(chatbots);
-  }, [chatbots]);
-
-  React.useEffect(() => {
-    setChatbots(appDataChatbots);
+    if (appDataChatbots.length > 0) {
+      setAllChatbots(appDataChatbots);
+    }
   }, [appDataChatbots]);
 
   React.useEffect(() => {
@@ -370,10 +364,10 @@ const BaseChatbot: React.FunctionComponent = () => {
     <Chatbot displayMode={displayMode}>
       <ChatbotHeader>
         <ChatbotHeaderMain>
-          <HeaderDropdown selectedChatbot={currentChatbot} chatbots={chatbots} onSelect={onSelect} />
+          <HeaderDropdown selectedChatbot={currentChatbot} chatbots={allChatbots} onSelect={onSelect} />
         </ChatbotHeaderMain>
-        {chatbots.length >= 2 && (
-          <Button component="a" href={`/compare?assistants=${chatbots[0].name}%2C${chatbots[1].name}`}>
+        {allChatbots.length >= 2 && (
+          <Button component="a" href={`/compare?assistants=${allChatbots[0].name}%2C${allChatbots[1].name}`}>
             Compare
           </Button>
         )}
