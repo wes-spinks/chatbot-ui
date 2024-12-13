@@ -50,7 +50,7 @@ describe('Base chatbot', () => {
         <RouterProvider router={router} />
       </AppDataProvider>,
     );
-    screen.getByText('Red Hat AI Assistant');
+    screen.getByText('Test');
     screen.getByText('Hello, Chatbot User');
     screen.getByText('How may I help you today?');
     screen.getByText('Verify all information from this tool. LLMs make mistakes.');

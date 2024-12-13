@@ -552,6 +552,12 @@ pf-v6-c-page__main-container.pf-m-fill {
   position: relative;
 }
 
+.expanding-text-input__section {
+  display: flex;
+  gap: var(--pf-t--global--spacer--sm);
+  flex-direction: column;
+}
+
 .hidden {
   position: absolute;
   opacity: 0;

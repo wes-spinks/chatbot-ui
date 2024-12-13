@@ -54,6 +54,7 @@ export const HeaderDropdown: React.FunctionComponent<HeaderDropdownProps> = ({
     }
   };
 
+  const selectedChatbotName = selectedChatbot?.displayName ?? selectedChatbot?.name;
   return (
     <Dropdown
       className="assistant-selector-menu"
@@ -67,7 +68,7 @@ export const HeaderDropdown: React.FunctionComponent<HeaderDropdownProps> = ({
       toggle={(toggleRef: React.Ref<MenuToggleElement>) => {
         return (
           <MenuToggle ref={toggleRef} onClick={onToggleClick} isExpanded={isOpen}>
-            Red Hat AI Assistant
+            {selectedChatbotName ?? 'Red Hat AI Assistant'}
           </MenuToggle>
         );
       }}

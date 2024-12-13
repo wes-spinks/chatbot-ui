@@ -13,7 +13,7 @@ import { useAppData } from '@app/AppData/AppDataContext';
 
 export const CompareLayout: React.FunctionComponent = () => {
   // information from api
-  const { chatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
+  const { chatbots: initialChatbots } = useLoaderData() as { chatbots: CannedChatbot[] };
 
   // state
   const [isSendButtonDisabled, setIsSendButtonDisabled] = React.useState(true);
@@ -30,6 +30,7 @@ export const CompareLayout: React.FunctionComponent = () => {
   const [files, setFiles] = React.useState<UserFacingFile[]>([]);
   const [isLoadingFile, setIsLoadingFile] = React.useState<boolean>(false);
   const [error, setError] = React.useState<ErrorObject>();
+  const [allChatbots, setAllChatbots] = React.useState<CannedChatbot[]>(initialChatbots);
 
   // constants for search params
   const [searchParams, setSearchParams] = useSearchParams();
@@ -40,16 +41,18 @@ export const CompareLayout: React.FunctionComponent = () => {
   const { status } = useChildStatus();
 
   // context, used for panels
-  const { setChatbots } = useAppData();
+  const { chatbots: appDataChatbots } = useAppData();
 
   React.useEffect(() => {
-    setChatbots(chatbots);
-  }, [chatbots]);
+    if (appDataChatbots.length > 0) {
+      setAllChatbots(appDataChatbots);
+    }
+  }, [appDataChatbots]);
 
   React.useEffect(() => {
     document.title = `Red Hat Composer AI Studio | Compare`;
     if (assistants && assistants.length === 2) {
-      const actualChatbots = chatbots.filter(
+      const actualChatbots = allChatbots.filter(
         (chatbot) => chatbot.name === assistants[0] || chatbot.name === assistants[1],
       );
       if (actualChatbots.length === 2) {
@@ -229,7 +232,7 @@ export const CompareLayout: React.FunctionComponent = () => {
           <div className={css('compare-item', !showFirstChatbot ? 'compare-item-hidden' : undefined)}>
             <CompareChild
               chatbot={firstChatbot}
-              allChatbots={chatbots}
+              allChatbots={allChatbots}
               controller={firstController}
               setController={setFirstController}
               input={input}
@@ -246,7 +249,7 @@ export const CompareLayout: React.FunctionComponent = () => {
           <div className={css('compare-item', !showSecondChatbot ? 'compare-item-hidden' : undefined)}>
             <CompareChild
               chatbot={secondChatbot}
-              allChatbots={chatbots}
+              allChatbots={allChatbots}
               controller={secondController}
               setController={setSecondController}
               input={input}

@@ -53,7 +53,7 @@ export const ExpandingTextInputs: React.FunctionComponent<ExpandingTextInputsPro
         </Button>
       </div>
       {values.length > 0 && (
-        <section aria-label="Example questions" tabIndex={-1}>
+        <section className="expanding-text-input__section" aria-label="Example questions" tabIndex={-1}>
           {values.map((value, index) => {
             return (
               <div key={index} className="expanding-text-inputs__row expanding-text-input__row-with-background">
