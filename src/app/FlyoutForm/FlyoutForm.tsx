@@ -1,7 +1,7 @@
 import { useAppData } from '@app/AppData/AppDataContext';
 import { FlyoutError } from '@app/FlyoutError/FlyoutError';
 import { FlyoutFooter } from '@app/FlyoutFooter/FlyoutFooter';
-import { FlyoutHeader } from '@app/FlyoutHeader.tsx/FlyoutHeader';
+import { FlyoutHeader } from '@app/FlyoutHeader/FlyoutHeader';
 import { FlyoutLoading } from '@app/FlyoutLoading/FlyoutLoading';
 import { useFlyoutWizard } from '@app/FlyoutWizard/FlyoutWizardContext';
 import { ErrorObject } from '@app/types/ErrorObject';

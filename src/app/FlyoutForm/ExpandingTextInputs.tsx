@@ -65,9 +65,7 @@ export const ExpandingTextInputs: React.FunctionComponent<ExpandingTextInputsPro
                     name={`${fieldId}-edit-text-input-${index}`}
                     onChange={(e, value) => setEditingInputValue(value)}
                     tabIndex={editingIndex === index ? 0 : -1}
-                    aria-label={
-                      editingInputValue === '' ? 'Edit example question' : `Edit example question ${editingInputValue}`
-                    }
+                    aria-label={`Edit example question ${value}`}
                   />
                 </div>
                 <div className={`expanding-text-inputs__row-value ${editingIndex === index ? 'hidden' : ''}`}>
@@ -83,7 +81,7 @@ export const ExpandingTextInputs: React.FunctionComponent<ExpandingTextInputsPro
                   }}
                   variant="plain"
                   className={editingIndex === index ? '' : 'hidden'}
-                  aria-label={`Save question ${editingInputValue}`}
+                  aria-label={`${editingIndex === index ? `Save question ${editingInputValue}` : `Save question ${value}`}`}
                 >
                   <CheckIcon />
                 </Button>
