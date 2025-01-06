@@ -37,11 +37,6 @@ export const getChatbots = async () => {
               'Access-Control-Allow-Origin': 'https://chatbot-ui-cia-ocpai--runtime-int.apps.stc-ai-e1-dev.bpis.p1.openshiftapps.com'
             },
           })
-          .then((resp) => {
-            if (resp.ok) {
-              console.log("Resp???", resp)
-              return resp.json()
-            };
         case 401:
           throw json({ status: 401 });
         case 403:
