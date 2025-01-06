@@ -40,8 +40,8 @@ export const getChatbots = async () => {
           .then((resp) => {
             if (resp.ok) {
               console.log("Resp???", resp)
-              return resp.json();
-            }
+              return resp.json()
+            };
         case 401:
           throw json({ status: 401 });
         case 403:
