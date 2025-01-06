@@ -43,7 +43,6 @@ const router = createBrowserRouter([
       {
         path: 'signin',
         element: <LoginPage />,
-        loader: chatbotLoader,
       },
     ],
   },
