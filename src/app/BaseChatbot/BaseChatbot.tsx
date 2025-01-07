@@ -131,7 +131,7 @@ const BaseChatbot: React.FunctionComponent = () => {
           assistantName: currentChatbot?.name,
         }),
         signal: newController?.signal,
-      });
+      }).then(console.log);
 
       if (!response.ok || !response.body) {
         switch (response.status) {
