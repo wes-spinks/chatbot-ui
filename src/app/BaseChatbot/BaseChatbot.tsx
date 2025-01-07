@@ -132,7 +132,7 @@ const BaseChatbot: React.FunctionComponent = () => {
         }),
         signal: newController?.signal,
       });
-      console.log(response)
+      console.log(response.text)
       if (!response.ok) {
         switch (response.status) {
           case 500:
