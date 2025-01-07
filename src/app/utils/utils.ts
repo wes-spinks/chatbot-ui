@@ -18,12 +18,7 @@ export const getChatbots = async () => {
   if (url === '') {
     throw json({ status: 'Misconfigured' });
   }
-  return fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
-    },
-  })
+  return fetch(url, {mode: 'no-cors'})
     .then((res) => {
       if (res.ok) {
         return res.json();
