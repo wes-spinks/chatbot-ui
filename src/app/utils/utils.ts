@@ -22,7 +22,7 @@ export const getChatbots = async () => {
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': 'https://chatbot-ui-cia-ocpai--runtime-int.apps.stc-ai-e1-dev.bpis.p1.openshiftapps.com',
-        })
+        }})
     .then((res) => {
       if (res.ok) {
         return res.json();
