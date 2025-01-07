@@ -92,10 +92,9 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
 
     try {
       const response = await fetch(url, {
-        method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': 'https://chatbot-ui-cia-ocpai--runtime-int.apps.stc-ai-e1-dev.bpis.p1.openshiftapps.com',
+          'Accept': 'application/json',
+          'Access-Control-Request-Headers': 'Access-Control-Allow-Headers,Access-Control-Allow-Origin'
         }
       });
 
