@@ -124,7 +124,7 @@ const BaseChatbot: React.FunctionComponent = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': 'https://chatbot-ui-cia-ocpai--runtime-int.apps.stc-ai-e1-dev.bpis.p1.openshiftapps.com',
+          'Access-Control-Request-Headers': 'Access-Control-Allow-Headers,Access-Control-Allow-Origin',
         },
         body: JSON.stringify({
           message: userMessage,
