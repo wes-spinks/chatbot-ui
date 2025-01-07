@@ -367,11 +367,9 @@ const BaseChatbot: React.FunctionComponent = () => {
         <ChatbotHeaderMain>
           <HeaderDropdown selectedChatbot={currentChatbot} chatbots={allChatbots} onSelect={onSelect} />
         </ChatbotHeaderMain>
-        {allChatbots.length >= 2 && (
-          <Button component="a" href={`/compare?assistants=${allChatbots[0].name}%2C${allChatbots[1].name}`}>
+          <Button component="a" href={`/compare?assistants=default_assistant%2Cpirate_assistant`}>
             Compare
           </Button>
-        )}
       </ChatbotHeader>
       <ChatbotContent>
         <MessageBox announcement={announcement}>
