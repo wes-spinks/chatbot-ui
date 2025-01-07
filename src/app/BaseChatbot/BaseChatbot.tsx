@@ -37,7 +37,7 @@ const BaseChatbot: React.FunctionComponent = () => {
   const scrollToBottomRef = React.useRef<HTMLDivElement>(null);
   const [error, setError] = React.useState<{ title: string; body: string }>();
   const [announcement, setAnnouncement] = React.useState<string>();
-  const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(flyoutMenuSelectedChatbot ?? chatbots[0]);
+  const [currentChatbot, setCurrentChatbot] = React.useState<CannedChatbot>(chatbot);
   const [controller, setController] = React.useState<AbortController>();
   const [currentDate, setCurrentDate] = React.useState<Date>();
   const [hasStopButton, setHasStopButton] = React.useState(false);
