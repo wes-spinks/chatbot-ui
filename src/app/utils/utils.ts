@@ -40,7 +40,7 @@ export const getChatbots = async () => {
     })
     .then((data: CannedChatbot[]) => {
       return data;
-    }).then(console.log);
+    });
 };
 
 export async function chatbotLoader() {
