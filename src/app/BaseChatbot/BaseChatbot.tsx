@@ -131,9 +131,9 @@ const BaseChatbot: React.FunctionComponent = () => {
           assistantName: currentChatbot?.name,
         }),
         signal: newController?.signal,
-      }).then(console.log);
-
-      if (!response.ok || !response.body) {
+      });
+      console.log(response)
+      if (!response.ok) {
         switch (response.status) {
           case 500:
             throw new Error('500');
