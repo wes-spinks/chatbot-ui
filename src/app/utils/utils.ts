@@ -22,8 +22,7 @@ export const getChatbots = async () => {
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, Accept-Language'
+      'Access-Control-Request-Headers': 'Access-Control-Allow-Headers,Access-Control-Allow-Origin'
     }})
     .then((res) => {
       if (res.ok) {
