@@ -20,6 +20,7 @@ export const getChatbots = async () => {
   }
   fetch(url, {
     headers: {
+      'Accept': 'application/json',
       'Content-Type': 'application/x-www-form-urlencoded',
       'Access-Control-Request-Headers': 'Access-Control-Allow-Headers,Access-Control-Allow-Origin'
     }})
