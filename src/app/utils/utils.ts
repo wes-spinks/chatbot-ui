@@ -20,13 +20,15 @@ export const getChatbots = async () => {
   }
   fetch(url, {
     headers: {
-      'Access-Control-Allow-Origin': 'https://chatbot-ui-cia-ocpai--runtime-int.apps.stc-ai-e1-dev.bpis.p1.openshiftapps.com',
-      'Access-Control-Allow-Headers': 'Origin,x-requested-with,Access-Control-Allow-Origin,Authorization'
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, Accept-Language'
     }})
     .then((res) => {
       if (res.ok) {
         return res.json();
-      }
+      }.then(console.log)
       switch (res.status) {
         case 401:
           throw json({ status: 401 });
