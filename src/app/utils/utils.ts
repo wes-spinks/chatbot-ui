@@ -28,7 +28,7 @@ export const getChatbots = async () => {
     .then((res) => {
       if (res.ok) {
         return res.json();
-      }.then(console.log)
+      }
       switch (res.status) {
         case 401:
           throw json({ status: 401 });
@@ -42,7 +42,7 @@ export const getChatbots = async () => {
     })
     .then((data: CannedChatbot[]) => {
       return data;
-    });
+    }).then(console.log);
 };
 
 export async function chatbotLoader() {
