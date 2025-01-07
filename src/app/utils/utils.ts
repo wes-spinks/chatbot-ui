@@ -21,7 +21,7 @@ export const getChatbots = async () => {
   return fetch(url, {
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': 'https://chatbot-ui-cia-ocpai--runtime-int.apps.stc-ai-e1-dev.bpis.p1.openshiftapps.com'
+      'Access-Control-Allow-Origin': '*'
     },
   })
     .then((res) => {
@@ -29,14 +29,6 @@ export const getChatbots = async () => {
         return res.json();
       }
       switch (res.status) {
-        case 302:
-          console.log("Res?", res)
-          return fetch(url, {
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': 'https://chatbot-ui-cia-ocpai--runtime-int.apps.stc-ai-e1-dev.bpis.p1.openshiftapps.com'
-            },
-          })
         case 401:
           throw json({ status: 401 });
         case 403:
