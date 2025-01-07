@@ -66,7 +66,13 @@ export const FlyoutList: React.FunctionComponent<FlyoutListProps> = ({
   const getAssistants = async () => {
     const url = process.env.REACT_APP_INFO_URL ?? '';
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://chatbot-ui-cia-ocpai--runtime-int.apps.stc-ai-e1-dev.bpis.p1.openshiftapps.com',
+        }
+      });
       if (!response.ok) {
         throw new Error(`${response.status}`);
       }

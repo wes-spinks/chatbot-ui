@@ -91,7 +91,13 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
     const url = process.env.REACT_APP_RETRIEVER_URL ?? '';
 
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://chatbot-ui-cia-ocpai--runtime-int.apps.stc-ai-e1-dev.bpis.p1.openshiftapps.com',
+        }
+      });
 
       if (!response.ok) {
         throw new Error(`${response.status}`);
@@ -112,7 +118,13 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
     const url = process.env.REACT_APP_LLM_URL ?? '';
 
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://chatbot-ui-cia-ocpai--runtime-int.apps.stc-ai-e1-dev.bpis.p1.openshiftapps.com',
+        }
+      });
 
       if (!response.ok) {
         throw new Error(`${response.status}`);
@@ -235,6 +247,7 @@ export const FlyoutForm: React.FunctionComponent<FlyoutFormProps> = ({ header, h
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': 'https://chatbot-ui-cia-ocpai--runtime-int.apps.stc-ai-e1-dev.bpis.p1.openshiftapps.com',
         },
         body: JSON.stringify(payload),
       });

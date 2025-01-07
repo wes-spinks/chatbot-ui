@@ -5,6 +5,7 @@ import { AppLayout } from '@app/AppLayout/AppLayout';
 import { chatbotLoader } from '@app/utils/utils';
 import { ComparePage } from './Compare/ComparePage';
 import { ErrorBoundary } from './ErrorPage/ErrorBoundary';
+import { LoginPage } from './LoginPage/LoginPage';
 
 export interface IAppRoute {
   label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
         path: 'compare',
         element: <ComparePage />,
         loader: chatbotLoader,
+      },
+      {
+        path: 'signin',
+        element: <LoginPage />,
       },
     ],
   },
